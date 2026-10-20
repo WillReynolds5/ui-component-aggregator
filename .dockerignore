@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+infra/cdk.out
+infra/node_modules
+uploads
+agent-tools
+*.md
+.env
+.env.*
+!.env.example

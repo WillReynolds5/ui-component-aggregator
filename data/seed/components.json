@@ -1,0 +1,1682 @@
+[
+ {
+  "post_url": "https://x.com/simoomdesign/status/2112040304144699607",
+  "author_handle": "@simoomdesign",
+  "post_text": "Stop building every UI component from scratch. Bookmark these 6 libraries. 🔖\n\n→ https://t.co/aF3JPG6NEI — UI components & design inspiration\n→ https://t.co/X9gFAfMqKk — UI components for modern interfaces\n→ https://t.co/8jcnJOJrMW — React UI components\n→ https://t.co/VvqekWgt7L — Copy-paste UI components\n→ https://t.co/nVyi8imU61 — UI components & building blocks\n→ https://t.co/N8biNHImAy — Reusable React & shadcn/ui components\n\nSave this for your next project. 👀",
+  "date": "2026-10-19T04:37:02.000Z",
+  "links": [
+   "https://cuedesign.space",
+   "https://feralui.dev",
+   "https://pinui.xyz",
+   "https://reui.io",
+   "https://sombra.design",
+   "https://toolcraft.sh"
+  ],
+  "image_paths": [
+   "images/simoomdesign_2112040304144699607_0.jpg"
+  ],
+  "component_name": "Cue",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "awwwards",
+   "premium"
+  ],
+  "framework": "unknown",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://cuedesign.space",
+  "extraction_status": "link only: paid ($99 lifetime), no public source",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/simoomdesign/status/2112040304144699607",
+  "author_handle": "@simoomdesign",
+  "post_text": "Stop building every UI component from scratch. Bookmark these 6 libraries. 🔖\n\n→ https://t.co/aF3JPG6NEI — UI components & design inspiration\n→ https://t.co/X9gFAfMqKk — UI components for modern interfaces\n→ https://t.co/8jcnJOJrMW — React UI components\n→ https://t.co/VvqekWgt7L — Copy-paste UI components\n→ https://t.co/nVyi8imU61 — UI components & building blocks\n→ https://t.co/N8biNHImAy — Reusable React & shadcn/ui components\n\nSave this for your next project. 👀",
+  "date": "2026-10-19T04:37:02.000Z",
+  "links": [
+   "https://cuedesign.space",
+   "https://feralui.dev",
+   "https://pinui.xyz",
+   "https://reui.io",
+   "https://sombra.design",
+   "https://toolcraft.sh"
+  ],
+  "image_paths": [
+   "images/simoomdesign_2112040304144699607_0.jpg"
+  ],
+  "component_name": "FeralUI",
+  "type": "component library",
+  "category": "animation",
+  "style_tags": [
+   "playful",
+   "physics"
+  ],
+  "framework": "React",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://feralui.dev",
+  "extraction_status": "link only: no public repo found on site",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/simoomdesign/status/2112040304144699607",
+  "author_handle": "@simoomdesign",
+  "post_text": "Stop building every UI component from scratch. Bookmark these 6 libraries. 🔖\n\n→ https://t.co/aF3JPG6NEI — UI components & design inspiration\n→ https://t.co/X9gFAfMqKk — UI components for modern interfaces\n→ https://t.co/8jcnJOJrMW — React UI components\n→ https://t.co/VvqekWgt7L — Copy-paste UI components\n→ https://t.co/nVyi8imU61 — UI components & building blocks\n→ https://t.co/N8biNHImAy — Reusable React & shadcn/ui components\n\nSave this for your next project. 👀",
+  "date": "2026-10-19T04:37:02.000Z",
+  "links": [
+   "https://cuedesign.space",
+   "https://feralui.dev",
+   "https://pinui.xyz",
+   "https://reui.io",
+   "https://sombra.design",
+   "https://toolcraft.sh"
+  ],
+  "image_paths": [
+   "images/simoomdesign_2112040304144699607_0.jpg"
+  ],
+  "component_name": "Pin UI",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "unique"
+  ],
+  "framework": "React",
+  "code_path": "code/repos/Rachit315__Pin-UI",
+  "figma_url": null,
+  "demo_url": "http://pinui.xyz",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/simoomdesign/status/2112040304144699607",
+  "author_handle": "@simoomdesign",
+  "post_text": "Stop building every UI component from scratch. Bookmark these 6 libraries. 🔖\n\n→ https://t.co/aF3JPG6NEI — UI components & design inspiration\n→ https://t.co/X9gFAfMqKk — UI components for modern interfaces\n→ https://t.co/8jcnJOJrMW — React UI components\n→ https://t.co/VvqekWgt7L — Copy-paste UI components\n→ https://t.co/nVyi8imU61 — UI components & building blocks\n→ https://t.co/N8biNHImAy — Reusable React & shadcn/ui components\n\nSave this for your next project. 👀",
+  "date": "2026-10-19T04:37:02.000Z",
+  "links": [
+   "https://cuedesign.space",
+   "https://feralui.dev",
+   "https://pinui.xyz",
+   "https://reui.io",
+   "https://sombra.design",
+   "https://toolcraft.sh"
+  ],
+  "image_paths": [
+   "images/simoomdesign_2112040304144699607_0.jpg"
+  ],
+  "component_name": "ReUI",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "shadcn",
+   "blocks",
+   "icons"
+  ],
+  "framework": "React/shadcn/Tailwind",
+  "code_path": "code/repos/keenthemes__reui",
+  "figma_url": null,
+  "demo_url": "http://reui.io",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/simoomdesign/status/2112040304144699607",
+  "author_handle": "@simoomdesign",
+  "post_text": "Stop building every UI component from scratch. Bookmark these 6 libraries. 🔖\n\n→ https://t.co/aF3JPG6NEI — UI components & design inspiration\n→ https://t.co/X9gFAfMqKk — UI components for modern interfaces\n→ https://t.co/8jcnJOJrMW — React UI components\n→ https://t.co/VvqekWgt7L — Copy-paste UI components\n→ https://t.co/nVyi8imU61 — UI components & building blocks\n→ https://t.co/N8biNHImAy — Reusable React & shadcn/ui components\n\nSave this for your next project. 👀",
+  "date": "2026-10-19T04:37:02.000Z",
+  "links": [
+   "https://cuedesign.space",
+   "https://feralui.dev",
+   "https://pinui.xyz",
+   "https://reui.io",
+   "https://sombra.design",
+   "https://toolcraft.sh"
+  ],
+  "image_paths": [
+   "images/simoomdesign_2112040304144699607_0.jpg"
+  ],
+  "component_name": "Sombra Gradient Composer",
+  "type": "tool",
+  "category": "gradient/background",
+  "style_tags": [
+   "gradients"
+  ],
+  "framework": "web tool",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://sombra.design",
+  "extraction_status": "link only: web tool, no public repo found",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/simoomdesign/status/2112040304144699607",
+  "author_handle": "@simoomdesign",
+  "post_text": "Stop building every UI component from scratch. Bookmark these 6 libraries. 🔖\n\n→ https://t.co/aF3JPG6NEI — UI components & design inspiration\n→ https://t.co/X9gFAfMqKk — UI components for modern interfaces\n→ https://t.co/8jcnJOJrMW — React UI components\n→ https://t.co/VvqekWgt7L — Copy-paste UI components\n→ https://t.co/nVyi8imU61 — UI components & building blocks\n→ https://t.co/N8biNHImAy — Reusable React & shadcn/ui components\n\nSave this for your next project. 👀",
+  "date": "2026-10-19T04:37:02.000Z",
+  "links": [
+   "https://cuedesign.space",
+   "https://feralui.dev",
+   "https://pinui.xyz",
+   "https://reui.io",
+   "https://sombra.design",
+   "https://toolcraft.sh"
+  ],
+  "image_paths": [
+   "images/simoomdesign_2112040304144699607_0.jpg"
+  ],
+  "component_name": "Toolcraft",
+  "type": "tool",
+  "category": "design tooling",
+  "style_tags": [
+   "ai"
+  ],
+  "framework": "React",
+  "code_path": "code/repos/pixel-point__toolcraft",
+  "figma_url": null,
+  "demo_url": "http://toolcraft.sh",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/HoudayfaDesign/status/2112166735826579845",
+  "author_handle": "@HoudayfaDesign",
+  "post_text": "The best UI component libraries worth bookmarking🔖\n\nhttps://t.co/86hFc2NsFt — Ready-to-use Tailwind components for faster UI development.\nhttps://t.co/lH2N4uAuDZ — Interactive React animations for polished, modern interfaces.\nhttps://t.co/l6yZHvM3B3 — AI-ready UI components built for modern products.\nhttps://t.co/fEakbX0jEh — Free, polished React and Next.js components ready to copy and customize.\nhttps://t.co/1uhAvIzHwH — Smooth transitions for fluid, modern interfaces.\nhttps://t.co/KILmsWEXQS — Clean, beautiful components for next-gen products.\nhttps://t.co/SIWZPhsJvG — Beautiful, accessible React components built with Tailwind CSS. \nhttps://t.co/4lqCMV2XK6 — Premium animated components for standout web apps.\n\nWhat other UI libraries deserve a spot on this list? 👇",
+  "date": "2026-10-19T12:59:26.000Z",
+  "links": [
+   "https://bencho.dev",
+   "https://boardui.com",
+   "https://heroui.com",
+   "https://opensourceui.in",
+   "https://reverseui.com",
+   "https://tailgrids.com",
+   "https://transitions.dev",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/HoudayfaDesign_2112166735826579845_0.jpg"
+  ],
+  "component_name": "Bencho",
+  "type": "component library",
+  "category": "micro-interaction",
+  "style_tags": [
+   "interactive",
+   "animation"
+  ],
+  "framework": "React",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://bencho.dev",
+  "extraction_status": "link only: no public repo found",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/HoudayfaDesign/status/2112166735826579845",
+  "author_handle": "@HoudayfaDesign",
+  "post_text": "The best UI component libraries worth bookmarking🔖\n\nhttps://t.co/86hFc2NsFt — Ready-to-use Tailwind components for faster UI development.\nhttps://t.co/lH2N4uAuDZ — Interactive React animations for polished, modern interfaces.\nhttps://t.co/l6yZHvM3B3 — AI-ready UI components built for modern products.\nhttps://t.co/fEakbX0jEh — Free, polished React and Next.js components ready to copy and customize.\nhttps://t.co/1uhAvIzHwH — Smooth transitions for fluid, modern interfaces.\nhttps://t.co/KILmsWEXQS — Clean, beautiful components for next-gen products.\nhttps://t.co/SIWZPhsJvG — Beautiful, accessible React components built with Tailwind CSS. \nhttps://t.co/4lqCMV2XK6 — Premium animated components for standout web apps.\n\nWhat other UI libraries deserve a spot on this list? 👇",
+  "date": "2026-10-19T12:59:26.000Z",
+  "links": [
+   "https://bencho.dev",
+   "https://boardui.com",
+   "https://heroui.com",
+   "https://opensourceui.in",
+   "https://reverseui.com",
+   "https://tailgrids.com",
+   "https://transitions.dev",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/HoudayfaDesign_2112166735826579845_0.jpg"
+  ],
+  "component_name": "BoardUI",
+  "type": "design system",
+  "category": "dashboard",
+  "style_tags": [
+   "dashboard"
+  ],
+  "framework": "React",
+  "code_path": "code/repos/BoardUI__boardui",
+  "figma_url": null,
+  "demo_url": "http://boardui.com",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/HoudayfaDesign/status/2112166735826579845",
+  "author_handle": "@HoudayfaDesign",
+  "post_text": "The best UI component libraries worth bookmarking🔖\n\nhttps://t.co/86hFc2NsFt — Ready-to-use Tailwind components for faster UI development.\nhttps://t.co/lH2N4uAuDZ — Interactive React animations for polished, modern interfaces.\nhttps://t.co/l6yZHvM3B3 — AI-ready UI components built for modern products.\nhttps://t.co/fEakbX0jEh — Free, polished React and Next.js components ready to copy and customize.\nhttps://t.co/1uhAvIzHwH — Smooth transitions for fluid, modern interfaces.\nhttps://t.co/KILmsWEXQS — Clean, beautiful components for next-gen products.\nhttps://t.co/SIWZPhsJvG — Beautiful, accessible React components built with Tailwind CSS. \nhttps://t.co/4lqCMV2XK6 — Premium animated components for standout web apps.\n\nWhat other UI libraries deserve a spot on this list? 👇",
+  "date": "2026-10-19T12:59:26.000Z",
+  "links": [
+   "https://bencho.dev",
+   "https://boardui.com",
+   "https://heroui.com",
+   "https://opensourceui.in",
+   "https://reverseui.com",
+   "https://tailgrids.com",
+   "https://transitions.dev",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/HoudayfaDesign_2112166735826579845_0.jpg"
+  ],
+  "component_name": "HeroUI v3",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "tailwind"
+  ],
+  "framework": "React",
+  "code_path": "code/repos/heroui-inc__heroui",
+  "figma_url": null,
+  "demo_url": "http://heroui.com",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/HoudayfaDesign/status/2112166735826579845",
+  "author_handle": "@HoudayfaDesign",
+  "post_text": "The best UI component libraries worth bookmarking🔖\n\nhttps://t.co/86hFc2NsFt — Ready-to-use Tailwind components for faster UI development.\nhttps://t.co/lH2N4uAuDZ — Interactive React animations for polished, modern interfaces.\nhttps://t.co/l6yZHvM3B3 — AI-ready UI components built for modern products.\nhttps://t.co/fEakbX0jEh — Free, polished React and Next.js components ready to copy and customize.\nhttps://t.co/1uhAvIzHwH — Smooth transitions for fluid, modern interfaces.\nhttps://t.co/KILmsWEXQS — Clean, beautiful components for next-gen products.\nhttps://t.co/SIWZPhsJvG — Beautiful, accessible React components built with Tailwind CSS. \nhttps://t.co/4lqCMV2XK6 — Premium animated components for standout web apps.\n\nWhat other UI libraries deserve a spot on this list? 👇",
+  "date": "2026-10-19T12:59:26.000Z",
+  "links": [
+   "https://bencho.dev",
+   "https://boardui.com",
+   "https://heroui.com",
+   "https://opensourceui.in",
+   "https://reverseui.com",
+   "https://tailgrids.com",
+   "https://transitions.dev",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/HoudayfaDesign_2112166735826579845_0.jpg"
+  ],
+  "component_name": "Opensource UI",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "copy-paste"
+  ],
+  "framework": "React/Next.js",
+  "code_path": "code/repos/bidyut10__opensourceui",
+  "figma_url": null,
+  "demo_url": "http://opensourceui.in",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/HoudayfaDesign/status/2112166735826579845",
+  "author_handle": "@HoudayfaDesign",
+  "post_text": "The best UI component libraries worth bookmarking🔖\n\nhttps://t.co/86hFc2NsFt — Ready-to-use Tailwind components for faster UI development.\nhttps://t.co/lH2N4uAuDZ — Interactive React animations for polished, modern interfaces.\nhttps://t.co/l6yZHvM3B3 — AI-ready UI components built for modern products.\nhttps://t.co/fEakbX0jEh — Free, polished React and Next.js components ready to copy and customize.\nhttps://t.co/1uhAvIzHwH — Smooth transitions for fluid, modern interfaces.\nhttps://t.co/KILmsWEXQS — Clean, beautiful components for next-gen products.\nhttps://t.co/SIWZPhsJvG — Beautiful, accessible React components built with Tailwind CSS. \nhttps://t.co/4lqCMV2XK6 — Premium animated components for standout web apps.\n\nWhat other UI libraries deserve a spot on this list? 👇",
+  "date": "2026-10-19T12:59:26.000Z",
+  "links": [
+   "https://bencho.dev",
+   "https://boardui.com",
+   "https://heroui.com",
+   "https://opensourceui.in",
+   "https://reverseui.com",
+   "https://tailgrids.com",
+   "https://transitions.dev",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/HoudayfaDesign_2112166735826579845_0.jpg"
+  ],
+  "component_name": "Reverse UI",
+  "type": "component library",
+  "category": "animation",
+  "style_tags": [
+   "premium",
+   "animated"
+  ],
+  "framework": "React",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://reverseui.com",
+  "extraction_status": "link only: premium, no public repo",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/HoudayfaDesign/status/2112166735826579845",
+  "author_handle": "@HoudayfaDesign",
+  "post_text": "The best UI component libraries worth bookmarking🔖\n\nhttps://t.co/86hFc2NsFt — Ready-to-use Tailwind components for faster UI development.\nhttps://t.co/lH2N4uAuDZ — Interactive React animations for polished, modern interfaces.\nhttps://t.co/l6yZHvM3B3 — AI-ready UI components built for modern products.\nhttps://t.co/fEakbX0jEh — Free, polished React and Next.js components ready to copy and customize.\nhttps://t.co/1uhAvIzHwH — Smooth transitions for fluid, modern interfaces.\nhttps://t.co/KILmsWEXQS — Clean, beautiful components for next-gen products.\nhttps://t.co/SIWZPhsJvG — Beautiful, accessible React components built with Tailwind CSS. \nhttps://t.co/4lqCMV2XK6 — Premium animated components for standout web apps.\n\nWhat other UI libraries deserve a spot on this list? 👇",
+  "date": "2026-10-19T12:59:26.000Z",
+  "links": [
+   "https://bencho.dev",
+   "https://boardui.com",
+   "https://heroui.com",
+   "https://opensourceui.in",
+   "https://reverseui.com",
+   "https://tailgrids.com",
+   "https://transitions.dev",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/HoudayfaDesign_2112166735826579845_0.jpg"
+  ],
+  "component_name": "Tailgrids",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "tailwind",
+   "design system"
+  ],
+  "framework": "React/Tailwind",
+  "code_path": "code/repos/Tailgrids__tailgrids",
+  "figma_url": null,
+  "demo_url": "http://tailgrids.com",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/HoudayfaDesign/status/2112166735826579845",
+  "author_handle": "@HoudayfaDesign",
+  "post_text": "The best UI component libraries worth bookmarking🔖\n\nhttps://t.co/86hFc2NsFt — Ready-to-use Tailwind components for faster UI development.\nhttps://t.co/lH2N4uAuDZ — Interactive React animations for polished, modern interfaces.\nhttps://t.co/l6yZHvM3B3 — AI-ready UI components built for modern products.\nhttps://t.co/fEakbX0jEh — Free, polished React and Next.js components ready to copy and customize.\nhttps://t.co/1uhAvIzHwH — Smooth transitions for fluid, modern interfaces.\nhttps://t.co/KILmsWEXQS — Clean, beautiful components for next-gen products.\nhttps://t.co/SIWZPhsJvG — Beautiful, accessible React components built with Tailwind CSS. \nhttps://t.co/4lqCMV2XK6 — Premium animated components for standout web apps.\n\nWhat other UI libraries deserve a spot on this list? 👇",
+  "date": "2026-10-19T12:59:26.000Z",
+  "links": [
+   "https://bencho.dev",
+   "https://boardui.com",
+   "https://heroui.com",
+   "https://opensourceui.in",
+   "https://reverseui.com",
+   "https://tailgrids.com",
+   "https://transitions.dev",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/HoudayfaDesign_2112166735826579845_0.jpg"
+  ],
+  "component_name": "Transitions.dev",
+  "type": "component library",
+  "category": "animation/transition",
+  "style_tags": [
+   "motion",
+   "ai-agent skill"
+  ],
+  "framework": "HTML/CSS/JS",
+  "code_path": "code/repos/Jakubantalik__transitions.dev",
+  "figma_url": null,
+  "demo_url": "http://transitions.dev",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/HoudayfaDesign/status/2112166735826579845",
+  "author_handle": "@HoudayfaDesign",
+  "post_text": "The best UI component libraries worth bookmarking🔖\n\nhttps://t.co/86hFc2NsFt — Ready-to-use Tailwind components for faster UI development.\nhttps://t.co/lH2N4uAuDZ — Interactive React animations for polished, modern interfaces.\nhttps://t.co/l6yZHvM3B3 — AI-ready UI components built for modern products.\nhttps://t.co/fEakbX0jEh — Free, polished React and Next.js components ready to copy and customize.\nhttps://t.co/1uhAvIzHwH — Smooth transitions for fluid, modern interfaces.\nhttps://t.co/KILmsWEXQS — Clean, beautiful components for next-gen products.\nhttps://t.co/SIWZPhsJvG — Beautiful, accessible React components built with Tailwind CSS. \nhttps://t.co/4lqCMV2XK6 — Premium animated components for standout web apps.\n\nWhat other UI libraries deserve a spot on this list? 👇",
+  "date": "2026-10-19T12:59:26.000Z",
+  "links": [
+   "https://bencho.dev",
+   "https://boardui.com",
+   "https://heroui.com",
+   "https://opensourceui.in",
+   "https://reverseui.com",
+   "https://tailgrids.com",
+   "https://transitions.dev",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/HoudayfaDesign_2112166735826579845_0.jpg"
+  ],
+  "component_name": "Arc UI",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "ai-ready"
+  ],
+  "framework": "React",
+  "code_path": "code/repos/kuratlielia__arc-library",
+  "figma_url": null,
+  "demo_url": "http://uiarc.dev",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/noahelhadedy/status/2111868210244948169",
+  "author_handle": "@noahelhadedy",
+  "post_text": "Websites for design engineers\n\n1. https://t.co/xv2bYqaG4M\n2. https://t.co/SATntjK9zf\n3. https://t.co/G83qRaycrY\n4. https://t.co/MvS0la1rvr\n5. https://t.co/1ElRK2hV3T\n6. https://t.co/m2IXqQITOE\n7. https://t.co/xnTG5LS1e2\n8. https://t.co/Pt7ejz7Lie\n\nWhat did I miss? https://t.co/BqsYCm2stm",
+  "date": "2026-10-18T17:13:12.000Z",
+  "links": [
+   "https://audiocn.dev",
+   "https://encyclopedia.iconography.co",
+   "https://gauge-ui.dev",
+   "https://mdxcn.dev",
+   "https://pele.run",
+   "https://squig.sh",
+   "https://squints.app",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/noahelhadedy_2111868210244948169_0.jpg"
+  ],
+  "component_name": "audiocn",
+  "type": "component library",
+  "category": "audio player",
+  "style_tags": [
+   "shadcn"
+  ],
+  "framework": "React/shadcn",
+  "code_path": "code/repos/audiocn__ui",
+  "figma_url": null,
+  "demo_url": "https://audiocn.dev",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/noahelhadedy/status/2111868210244948169",
+  "author_handle": "@noahelhadedy",
+  "post_text": "Websites for design engineers\n\n1. https://t.co/xv2bYqaG4M\n2. https://t.co/SATntjK9zf\n3. https://t.co/G83qRaycrY\n4. https://t.co/MvS0la1rvr\n5. https://t.co/1ElRK2hV3T\n6. https://t.co/m2IXqQITOE\n7. https://t.co/xnTG5LS1e2\n8. https://t.co/Pt7ejz7Lie\n\nWhat did I miss? https://t.co/BqsYCm2stm",
+  "date": "2026-10-18T17:13:12.000Z",
+  "links": [
+   "https://audiocn.dev",
+   "https://encyclopedia.iconography.co",
+   "https://gauge-ui.dev",
+   "https://mdxcn.dev",
+   "https://pele.run",
+   "https://squig.sh",
+   "https://squints.app",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/noahelhadedy_2111868210244948169_0.jpg"
+  ],
+  "component_name": "Iconography Encyclopedia",
+  "type": "resource",
+  "category": "icons",
+  "style_tags": [
+   "icons",
+   "reference"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "https://encyclopedia.iconography.co",
+  "extraction_status": "link only: reference site",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/noahelhadedy/status/2111868210244948169",
+  "author_handle": "@noahelhadedy",
+  "post_text": "Websites for design engineers\n\n1. https://t.co/xv2bYqaG4M\n2. https://t.co/SATntjK9zf\n3. https://t.co/G83qRaycrY\n4. https://t.co/MvS0la1rvr\n5. https://t.co/1ElRK2hV3T\n6. https://t.co/m2IXqQITOE\n7. https://t.co/xnTG5LS1e2\n8. https://t.co/Pt7ejz7Lie\n\nWhat did I miss? https://t.co/BqsYCm2stm",
+  "date": "2026-10-18T17:13:12.000Z",
+  "links": [
+   "https://audiocn.dev",
+   "https://encyclopedia.iconography.co",
+   "https://gauge-ui.dev",
+   "https://mdxcn.dev",
+   "https://pele.run",
+   "https://squig.sh",
+   "https://squints.app",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/noahelhadedy_2111868210244948169_0.jpg"
+  ],
+  "component_name": "Gauge UI",
+  "type": "component",
+  "category": "gauge/chart",
+  "style_tags": [
+   "data-viz"
+  ],
+  "framework": "React",
+  "code_path": "code/repos/thordursk__gauge-ui",
+  "figma_url": null,
+  "demo_url": "https://gauge-ui.dev",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/noahelhadedy/status/2111868210244948169",
+  "author_handle": "@noahelhadedy",
+  "post_text": "Websites for design engineers\n\n1. https://t.co/xv2bYqaG4M\n2. https://t.co/SATntjK9zf\n3. https://t.co/G83qRaycrY\n4. https://t.co/MvS0la1rvr\n5. https://t.co/1ElRK2hV3T\n6. https://t.co/m2IXqQITOE\n7. https://t.co/xnTG5LS1e2\n8. https://t.co/Pt7ejz7Lie\n\nWhat did I miss? https://t.co/BqsYCm2stm",
+  "date": "2026-10-18T17:13:12.000Z",
+  "links": [
+   "https://audiocn.dev",
+   "https://encyclopedia.iconography.co",
+   "https://gauge-ui.dev",
+   "https://mdxcn.dev",
+   "https://pele.run",
+   "https://squig.sh",
+   "https://squints.app",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/noahelhadedy_2111868210244948169_0.jpg"
+  ],
+  "component_name": "mdxcn",
+  "type": "component library",
+  "category": "markdown/content",
+  "style_tags": [
+   "shadcn",
+   "mdx"
+  ],
+  "framework": "React/shadcn",
+  "code_path": "code/repos/shadcn-labs__mdxcn",
+  "figma_url": null,
+  "demo_url": "https://mdxcn.dev",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/noahelhadedy/status/2111868210244948169",
+  "author_handle": "@noahelhadedy",
+  "post_text": "Websites for design engineers\n\n1. https://t.co/xv2bYqaG4M\n2. https://t.co/SATntjK9zf\n3. https://t.co/G83qRaycrY\n4. https://t.co/MvS0la1rvr\n5. https://t.co/1ElRK2hV3T\n6. https://t.co/m2IXqQITOE\n7. https://t.co/xnTG5LS1e2\n8. https://t.co/Pt7ejz7Lie\n\nWhat did I miss? https://t.co/BqsYCm2stm",
+  "date": "2026-10-18T17:13:12.000Z",
+  "links": [
+   "https://audiocn.dev",
+   "https://encyclopedia.iconography.co",
+   "https://gauge-ui.dev",
+   "https://mdxcn.dev",
+   "https://pele.run",
+   "https://squig.sh",
+   "https://squints.app",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/noahelhadedy_2111868210244948169_0.jpg"
+  ],
+  "component_name": "Pele",
+  "type": "tool",
+  "category": "diagram",
+  "style_tags": [
+   "mermaid",
+   "svg",
+   "themeable"
+  ],
+  "framework": "JS",
+  "code_path": "code/repos/obsidianmd__pele",
+  "figma_url": null,
+  "demo_url": "https://pele.run",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/noahelhadedy/status/2111868210244948169",
+  "author_handle": "@noahelhadedy",
+  "post_text": "Websites for design engineers\n\n1. https://t.co/xv2bYqaG4M\n2. https://t.co/SATntjK9zf\n3. https://t.co/G83qRaycrY\n4. https://t.co/MvS0la1rvr\n5. https://t.co/1ElRK2hV3T\n6. https://t.co/m2IXqQITOE\n7. https://t.co/xnTG5LS1e2\n8. https://t.co/Pt7ejz7Lie\n\nWhat did I miss? https://t.co/BqsYCm2stm",
+  "date": "2026-10-18T17:13:12.000Z",
+  "links": [
+   "https://audiocn.dev",
+   "https://encyclopedia.iconography.co",
+   "https://gauge-ui.dev",
+   "https://mdxcn.dev",
+   "https://pele.run",
+   "https://squig.sh",
+   "https://squints.app",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/noahelhadedy_2111868210244948169_0.jpg"
+  ],
+  "component_name": "squig",
+  "type": "tool",
+  "category": "wireframe",
+  "style_tags": [
+   "sketchy",
+   "wireframe"
+  ],
+  "framework": "unknown",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "https://squig.sh",
+  "extraction_status": "link only: no repo found",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/noahelhadedy/status/2111868210244948169",
+  "author_handle": "@noahelhadedy",
+  "post_text": "Websites for design engineers\n\n1. https://t.co/xv2bYqaG4M\n2. https://t.co/SATntjK9zf\n3. https://t.co/G83qRaycrY\n4. https://t.co/MvS0la1rvr\n5. https://t.co/1ElRK2hV3T\n6. https://t.co/m2IXqQITOE\n7. https://t.co/xnTG5LS1e2\n8. https://t.co/Pt7ejz7Lie\n\nWhat did I miss? https://t.co/BqsYCm2stm",
+  "date": "2026-10-18T17:13:12.000Z",
+  "links": [
+   "https://audiocn.dev",
+   "https://encyclopedia.iconography.co",
+   "https://gauge-ui.dev",
+   "https://mdxcn.dev",
+   "https://pele.run",
+   "https://squig.sh",
+   "https://squints.app",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/noahelhadedy_2111868210244948169_0.jpg"
+  ],
+  "component_name": "Squints",
+  "type": "tool",
+  "category": "design tooling",
+  "style_tags": [],
+  "framework": "unknown",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "https://squints.app",
+  "extraction_status": "link only: no repo found",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/noahelhadedy/status/2111868210244948169",
+  "author_handle": "@noahelhadedy",
+  "post_text": "Websites for design engineers\n\n1. https://t.co/xv2bYqaG4M\n2. https://t.co/SATntjK9zf\n3. https://t.co/G83qRaycrY\n4. https://t.co/MvS0la1rvr\n5. https://t.co/1ElRK2hV3T\n6. https://t.co/m2IXqQITOE\n7. https://t.co/xnTG5LS1e2\n8. https://t.co/Pt7ejz7Lie\n\nWhat did I miss? https://t.co/BqsYCm2stm",
+  "date": "2026-10-18T17:13:12.000Z",
+  "links": [
+   "https://audiocn.dev",
+   "https://encyclopedia.iconography.co",
+   "https://gauge-ui.dev",
+   "https://mdxcn.dev",
+   "https://pele.run",
+   "https://squig.sh",
+   "https://squints.app",
+   "https://uiarc.dev"
+  ],
+  "image_paths": [
+   "images/noahelhadedy_2111868210244948169_0.jpg"
+  ],
+  "component_name": "Arc UI",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "ai-ready"
+  ],
+  "framework": "React",
+  "code_path": "code/repos/kuratlielia__arc-library",
+  "figma_url": null,
+  "demo_url": "https://uiarc.dev",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/animate_ui/status/2111882479774896338",
+  "author_handle": "@animate_ui",
+  "post_text": "Animate UI 2.0 is out 🎉\n\nAnimated primitives for Radix UI, Base UI and React Aria, built with Motion. \nKeep your shadcn/ui components.\n\n✔ A CLI that animates them in one command\n✔ An AI skill that animates anything (components, icons, interactions) and reviews your motion https://t.co/wSIgmaPeUk",
+  "date": "2026-10-18T18:09:54.000Z",
+  "links": [],
+  "image_paths": [
+   "images/animate_ui_2111882479774896338_0.jpg"
+  ],
+  "component_name": "Animate UI 2.0",
+  "type": "component library",
+  "category": "animation",
+  "style_tags": [
+   "motion",
+   "radix",
+   "base ui",
+   "react aria",
+   "shadcn"
+  ],
+  "framework": "React/Motion",
+  "code_path": "code/repos/imskyleen__animate-ui",
+  "figma_url": null,
+  "demo_url": "https://animate-ui.com",
+  "extraction_status": "full code (repo found via animate-ui.com; post itself only has video)",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/0xwhrrari/status/2112166940081004693",
+  "author_handle": "@0xwhrrari",
+  "post_text": "Holy f*ck, Opus 5.5 replaced After Effects\n\nIt's f*cking insane…\n\nDrop the PDF below into Opus 5.5 and see what it makes\n\nThen read the full guide on motion design in the article below ↓ https://t.co/XUR0QuKvmb https://t.co/EWCmuHgzEl",
+  "date": "2026-10-19T13:00:15.000Z",
+  "links": [
+   "https://twitter.com/0xwhrrari/status/2105643919119696297"
+  ],
+  "image_paths": [
+   "images/0xwhrrari_2112166940081004693_0.jpg"
+  ],
+  "component_name": "Motion design with Opus 5.5 guide",
+  "type": "tutorial",
+  "category": "animation",
+  "style_tags": [
+   "motion design"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: guide is in an X article/quoted post (login wall), PDF not attached",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/componest/status/2112057747739172953",
+  "author_handle": "@componest",
+  "post_text": "Tables that split, stretch, and snap by @haaarshsingh https://t.co/UIvGOovoPk",
+  "date": "2026-10-19T05:46:21.000Z",
+  "links": [],
+  "image_paths": [
+   "images/componest_2112057747739172953_0.jpg"
+  ],
+  "component_name": "Split/stretch/snap tables (by @haaarshsingh)",
+  "type": "component",
+  "category": "table",
+  "style_tags": [
+   "interactive",
+   "animation"
+  ],
+  "framework": "unknown",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video only, no source link in post",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/aidenybai/status/2111991261540528454",
+  "author_handle": "@aidenybai",
+  "post_text": "design eng tip for skeleton UIs:\n\nask your agent to measure the loaded UI with Playwright\n\nthen match the skeleton's sizes and positions to prevent layout jank https://t.co/d7W3KYrDKu",
+  "date": "2026-10-19T01:22:10.000Z",
+  "links": [],
+  "image_paths": [
+   "images/aidenybai_2111991261540528454_0.jpg"
+  ],
+  "component_name": "Skeleton UI matching tip",
+  "type": "technique",
+  "category": "skeleton/loading",
+  "style_tags": [
+   "playwright"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: tip + video, no code",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/cabralorenzo/status/2111478858478465421",
+  "author_handle": "@cabralorenzo",
+  "post_text": "give Claude better taste in UI\n\nhttps://t.co/csJz2YLBAa https://t.co/AcFmLe1NPl",
+  "date": "2026-10-17T15:26:03.000Z",
+  "links": [
+   "https://bencho.dev"
+  ],
+  "image_paths": [
+   "images/cabralorenzo_2111478858478465421_0.jpg"
+  ],
+  "component_name": "Bencho (UI taste for Claude)",
+  "type": "component library",
+  "category": "micro-interaction",
+  "style_tags": [
+   "interactive"
+  ],
+  "framework": "React",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "https://bencho.dev",
+  "extraction_status": "link only: no public repo found",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/pitus_/status/2111519352503873866",
+  "author_handle": "@pitus_",
+  "post_text": "Generative UI #2 - Merge conflicts 🚫 ✨ https://t.co/qT8OTsLj32",
+  "date": "2026-10-17T18:06:58.000Z",
+  "links": [],
+  "image_paths": [
+   "images/pitus__2111519352503873866_0.jpg"
+  ],
+  "component_name": "Generative UI #2 - Merge conflicts",
+  "type": "component",
+  "category": "ai/generative ui",
+  "style_tags": [
+   "diff",
+   "merge conflict"
+  ],
+  "framework": "unknown",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video only",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/MichaelFilipiuk/status/2111383736243859714",
+  "author_handle": "@MichaelFilipiuk",
+  "post_text": "Design tip:\n\nIf the app feels off but you're not sure why, it's probably the spacing. https://t.co/5KgcuT5jtR",
+  "date": "2026-10-17T09:08:04.000Z",
+  "links": [],
+  "image_paths": [
+   "images/MichaelFilipiuk_2111383736243859714_0.jpg"
+  ],
+  "component_name": "Spacing design tip",
+  "type": "technique",
+  "category": "layout/spacing",
+  "style_tags": [
+   "spacing"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video only",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/lennysan/status/2111088513764520054",
+  "author_handle": "@lennysan",
+  "post_text": "Head of Design at Stripe on how to stop creating zombie UIs https://t.co/CPOePWA5SG https://t.co/Co7tnlyW0l",
+  "date": "2026-10-16T13:34:58.000Z",
+  "links": [
+   "https://twitter.com/lil_dill/status/2110769497422631234"
+  ],
+  "image_paths": [
+   "images/lennysan_2111088513764520054_0.jpg"
+  ],
+  "component_name": "Stripe Head of Design on zombie UIs",
+  "type": "talk",
+  "category": "inspiration",
+  "style_tags": [
+   "product design"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video/quoted post",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/DannPetty/status/2110757481311785261",
+  "author_handle": "@DannPetty",
+  "post_text": "I love me a good feature launch video. https://t.co/h6GLrNayOE",
+  "date": "2026-10-15T15:39:34.000Z",
+  "links": [],
+  "image_paths": [
+   "images/DannPetty_2110757481311785261_0.jpg"
+  ],
+  "component_name": "Feature launch video (quote of @tomkrcha)",
+  "type": "inspiration",
+  "category": "animation/video",
+  "style_tags": [
+   "launch video"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video only",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/shadcn/status/2110410655165779985",
+  "author_handle": "@shadcn",
+  "post_text": "I just published Trace, a new component for agent activity. It's one abstraction for reasoning, tool calls, queues, chain of thought, subagents...etc\n\nAlso in this release: Code Block and AI Elements.\n\nhttps://t.co/gWDSPBII1c https://t.co/302yiOO8Lp",
+  "date": "2026-10-14T16:41:24.000Z",
+  "links": [
+   "https://ui.shadcn.com/docs/changelog/2026-10-ai-elements"
+  ],
+  "image_paths": [
+   "images/shadcn_2110410655165779985_0.jpg"
+  ],
+  "component_name": "shadcn Trace (+ Code Block)",
+  "type": "component",
+  "category": "ai/agent activity",
+  "style_tags": [
+   "shadcn",
+   "ai elements"
+  ],
+  "framework": "React/Tailwind",
+  "code_path": "code/shadcn-trace/trace.tsx",
+  "figma_url": null,
+  "demo_url": "https://ui.shadcn.com/docs/changelog/2026-10-ai-elements",
+  "extraction_status": "full code (shadcn registry; code-block in code/shadcn-code-block/)",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/Jakubantalik/status/2109671433521815772",
+  "author_handle": "@Jakubantalik",
+  "post_text": "Created a new skill for UI generation skeleton effect, something I’ve been using in my UI videos.\n\nThese UI examples are built with https://t.co/eSmFziLSx9 UI Agent. https://t.co/O9plXI6Vev",
+  "date": "2026-10-12T15:44:00.000Z",
+  "links": [
+   "https://transitions.dev"
+  ],
+  "image_paths": [
+   "images/Jakubantalik_2109671433521815772_0.jpg"
+  ],
+  "component_name": "Skeleton-effect UI generation skill (Transitions.dev)",
+  "type": "component",
+  "category": "skeleton/loading",
+  "style_tags": [
+   "skeleton",
+   "motion"
+  ],
+  "framework": "HTML/CSS/JS",
+  "code_path": "code/repos/Jakubantalik__transitions.dev",
+  "figma_url": null,
+  "demo_url": "https://transitions.dev",
+  "extraction_status": "full code (transitions.dev repo; specific skill not isolated)",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/destraynor/status/2105348727196004805",
+  "author_handle": "@destraynor",
+  "post_text": "An easy way to add polish + remove the vibe coded feel (aka purple web 3 gradients etc.) from your work: \n  \n1. Sound effects from @dwhitedesign's https://t.co/DdAyw6qiHB\n2. Animations from @Jakubantalik's https://t.co/esnfL8aCW1\n3. UI from @shadcn's https://t.co/VA8HawC0Qz",
+  "date": "2026-09-30T17:27:06.000Z",
+  "links": [
+   "https://cuelume-site.pages.dev",
+   "https://transitions.dev",
+   "https://ui.shadcn.com"
+  ],
+  "image_paths": [],
+  "component_name": "Transitions.dev",
+  "type": "component library",
+  "category": "animation/transition",
+  "style_tags": [
+   "motion",
+   "ai-agent skill"
+  ],
+  "framework": "HTML/CSS/JS",
+  "code_path": "code/repos/Jakubantalik__transitions.dev",
+  "figma_url": null,
+  "demo_url": "https://Transitions.dev",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/destraynor/status/2105348727196004805",
+  "author_handle": "@destraynor",
+  "post_text": "An easy way to add polish + remove the vibe coded feel (aka purple web 3 gradients etc.) from your work: \n  \n1. Sound effects from @dwhitedesign's https://t.co/DdAyw6qiHB\n2. Animations from @Jakubantalik's https://t.co/esnfL8aCW1\n3. UI from @shadcn's https://t.co/VA8HawC0Qz",
+  "date": "2026-09-30T17:27:06.000Z",
+  "links": [
+   "https://cuelume-site.pages.dev",
+   "https://transitions.dev",
+   "https://ui.shadcn.com"
+  ],
+  "image_paths": [],
+  "component_name": "Cuelume",
+  "type": "library",
+  "category": "sound/interaction",
+  "style_tags": [
+   "sound effects"
+  ],
+  "framework": "JS/TS",
+  "code_path": "code/repos/danielwh2__cuelume",
+  "figma_url": null,
+  "demo_url": "https://cuelume-site.pages.dev/",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/destraynor/status/2105348727196004805",
+  "author_handle": "@destraynor",
+  "post_text": "An easy way to add polish + remove the vibe coded feel (aka purple web 3 gradients etc.) from your work: \n  \n1. Sound effects from @dwhitedesign's https://t.co/DdAyw6qiHB\n2. Animations from @Jakubantalik's https://t.co/esnfL8aCW1\n3. UI from @shadcn's https://t.co/VA8HawC0Qz",
+  "date": "2026-09-30T17:27:06.000Z",
+  "links": [
+   "https://cuelume-site.pages.dev",
+   "https://transitions.dev",
+   "https://ui.shadcn.com"
+  ],
+  "image_paths": [],
+  "component_name": "shadcn/ui",
+  "type": "component library",
+  "category": "library",
+  "style_tags": [
+   "shadcn",
+   "tailwind"
+  ],
+  "framework": "React/Tailwind",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "https://ui.shadcn.com/",
+  "extraction_status": "link only: well-known library, not cloned",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/AdityaSur11/status/2101695377267384457",
+  "author_handle": "@AdityaSur11",
+  "post_text": "Labels with mono fonts looks the best https://t.co/ivgfHZyHoY",
+  "date": "2026-09-20T15:30:00.000Z",
+  "links": [],
+  "image_paths": [
+   "images/AdityaSur11_2101695377267384457_0.jpg"
+  ],
+  "component_name": "Mono-font labels",
+  "type": "inspiration",
+  "category": "typography/label",
+  "style_tags": [
+   "monospace"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: image only",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/tranmautritam/status/2095078647652917329",
+  "author_handle": "@tranmautritam",
+  "post_text": "Top best websites to get 𝙳𝙴𝚂𝙸𝙶𝙽.𝚖𝚍. Save for later 👇\n\n- https://t.co/LFLjswsIPw\n- https://t.co/OPdVoVU0S8\n- https://t.co/x4MM8ofvQP\n- https://t.co/b0nqVimRDu\n- getdesign.md\n- https://t.co/eGIRyFL6yl\n- https://t.co/RVhnmvds8X\n- https://t.co/Rh9rZb44OU\n- https://t.co/clZYV5m6Nw\n\nWhat am I missing?",
+  "date": "2026-09-02T09:17:28.000Z",
+  "links": [
+   "https://aura.build",
+   "https://design-md.hyperbrowser.ai",
+   "https://designmd.me",
+   "https://designmd.supply",
+   "https://neuform.ai",
+   "https://open-design.ai",
+   "https://styles.refero.design",
+   "https://typeui.sh"
+  ],
+  "image_paths": [
+   "images/tranmautritam_2095078647652917329_0.jpg"
+  ],
+  "component_name": "Aura",
+  "type": "tool",
+  "category": "AI site builder",
+  "style_tags": [
+   "landing pages"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://aura.build",
+  "extraction_status": "link only: hosted builder",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/tranmautritam/status/2095078647652917329",
+  "author_handle": "@tranmautritam",
+  "post_text": "Top best websites to get 𝙳𝙴𝚂𝙸𝙶𝙽.𝚖𝚍. Save for later 👇\n\n- https://t.co/LFLjswsIPw\n- https://t.co/OPdVoVU0S8\n- https://t.co/x4MM8ofvQP\n- https://t.co/b0nqVimRDu\n- getdesign.md\n- https://t.co/eGIRyFL6yl\n- https://t.co/RVhnmvds8X\n- https://t.co/Rh9rZb44OU\n- https://t.co/clZYV5m6Nw\n\nWhat am I missing?",
+  "date": "2026-09-02T09:17:28.000Z",
+  "links": [
+   "https://aura.build",
+   "https://design-md.hyperbrowser.ai",
+   "https://designmd.me",
+   "https://designmd.supply",
+   "https://neuform.ai",
+   "https://open-design.ai",
+   "https://styles.refero.design",
+   "https://typeui.sh"
+  ],
+  "image_paths": [
+   "images/tranmautritam_2095078647652917329_0.jpg"
+  ],
+  "component_name": "DESIGNMD (Hyperbrowser)",
+  "type": "tool",
+  "category": "DESIGN.md generator",
+  "style_tags": [
+   "design.md"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://design-md.hyperbrowser.ai",
+  "extraction_status": "link only: hosted tool",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/tranmautritam/status/2095078647652917329",
+  "author_handle": "@tranmautritam",
+  "post_text": "Top best websites to get 𝙳𝙴𝚂𝙸𝙶𝙽.𝚖𝚍. Save for later 👇\n\n- https://t.co/LFLjswsIPw\n- https://t.co/OPdVoVU0S8\n- https://t.co/x4MM8ofvQP\n- https://t.co/b0nqVimRDu\n- getdesign.md\n- https://t.co/eGIRyFL6yl\n- https://t.co/RVhnmvds8X\n- https://t.co/Rh9rZb44OU\n- https://t.co/clZYV5m6Nw\n\nWhat am I missing?",
+  "date": "2026-09-02T09:17:28.000Z",
+  "links": [
+   "https://aura.build",
+   "https://design-md.hyperbrowser.ai",
+   "https://designmd.me",
+   "https://designmd.supply",
+   "https://neuform.ai",
+   "https://open-design.ai",
+   "https://styles.refero.design",
+   "https://typeui.sh"
+  ],
+  "image_paths": [
+   "images/tranmautritam_2095078647652917329_0.jpg"
+  ],
+  "component_name": "DesignMD",
+  "type": "tool",
+  "category": "DESIGN.md generator",
+  "style_tags": [
+   "design.md",
+   "ai"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://designmd.me",
+  "extraction_status": "link only: hosted tool",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/tranmautritam/status/2095078647652917329",
+  "author_handle": "@tranmautritam",
+  "post_text": "Top best websites to get 𝙳𝙴𝚂𝙸𝙶𝙽.𝚖𝚍. Save for later 👇\n\n- https://t.co/LFLjswsIPw\n- https://t.co/OPdVoVU0S8\n- https://t.co/x4MM8ofvQP\n- https://t.co/b0nqVimRDu\n- getdesign.md\n- https://t.co/eGIRyFL6yl\n- https://t.co/RVhnmvds8X\n- https://t.co/Rh9rZb44OU\n- https://t.co/clZYV5m6Nw\n\nWhat am I missing?",
+  "date": "2026-09-02T09:17:28.000Z",
+  "links": [
+   "https://aura.build",
+   "https://design-md.hyperbrowser.ai",
+   "https://designmd.me",
+   "https://designmd.supply",
+   "https://neuform.ai",
+   "https://open-design.ai",
+   "https://styles.refero.design",
+   "https://typeui.sh"
+  ],
+  "image_paths": [
+   "images/tranmautritam_2095078647652917329_0.jpg"
+  ],
+  "component_name": "designmd.supply",
+  "type": "resource",
+  "category": "DESIGN.md library",
+  "style_tags": [
+   "design.md"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://designmd.supply",
+  "extraction_status": "failed: Vercel security checkpoint (HTTP 429) blocked fetch",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/tranmautritam/status/2095078647652917329",
+  "author_handle": "@tranmautritam",
+  "post_text": "Top best websites to get 𝙳𝙴𝚂𝙸𝙶𝙽.𝚖𝚍. Save for later 👇\n\n- https://t.co/LFLjswsIPw\n- https://t.co/OPdVoVU0S8\n- https://t.co/x4MM8ofvQP\n- https://t.co/b0nqVimRDu\n- getdesign.md\n- https://t.co/eGIRyFL6yl\n- https://t.co/RVhnmvds8X\n- https://t.co/Rh9rZb44OU\n- https://t.co/clZYV5m6Nw\n\nWhat am I missing?",
+  "date": "2026-09-02T09:17:28.000Z",
+  "links": [
+   "https://aura.build",
+   "https://design-md.hyperbrowser.ai",
+   "https://designmd.me",
+   "https://designmd.supply",
+   "https://neuform.ai",
+   "https://open-design.ai",
+   "https://styles.refero.design",
+   "https://typeui.sh"
+  ],
+  "image_paths": [
+   "images/tranmautritam_2095078647652917329_0.jpg"
+  ],
+  "component_name": "Neuform",
+  "type": "tool",
+  "category": "landing page templates",
+  "style_tags": [
+   "html",
+   "templates"
+  ],
+  "framework": "HTML",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://neuform.ai",
+  "extraction_status": "link only: hosted builder/templates",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/tranmautritam/status/2095078647652917329",
+  "author_handle": "@tranmautritam",
+  "post_text": "Top best websites to get 𝙳𝙴𝚂𝙸𝙶𝙽.𝚖𝚍. Save for later 👇\n\n- https://t.co/LFLjswsIPw\n- https://t.co/OPdVoVU0S8\n- https://t.co/x4MM8ofvQP\n- https://t.co/b0nqVimRDu\n- getdesign.md\n- https://t.co/eGIRyFL6yl\n- https://t.co/RVhnmvds8X\n- https://t.co/Rh9rZb44OU\n- https://t.co/clZYV5m6Nw\n\nWhat am I missing?",
+  "date": "2026-09-02T09:17:28.000Z",
+  "links": [
+   "https://aura.build",
+   "https://design-md.hyperbrowser.ai",
+   "https://designmd.me",
+   "https://designmd.supply",
+   "https://neuform.ai",
+   "https://open-design.ai",
+   "https://styles.refero.design",
+   "https://typeui.sh"
+  ],
+  "image_paths": [
+   "images/tranmautritam_2095078647652917329_0.jpg"
+  ],
+  "component_name": "OpenDesign",
+  "type": "tool",
+  "category": "AI design tool",
+  "style_tags": [
+   "design.md",
+   "open source"
+  ],
+  "framework": "TS",
+  "code_path": "code/repos/nexu-io__open-design",
+  "figma_url": null,
+  "demo_url": "http://open-design.ai",
+  "extraction_status": "full code",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/tranmautritam/status/2095078647652917329",
+  "author_handle": "@tranmautritam",
+  "post_text": "Top best websites to get 𝙳𝙴𝚂𝙸𝙶𝙽.𝚖𝚍. Save for later 👇\n\n- https://t.co/LFLjswsIPw\n- https://t.co/OPdVoVU0S8\n- https://t.co/x4MM8ofvQP\n- https://t.co/b0nqVimRDu\n- getdesign.md\n- https://t.co/eGIRyFL6yl\n- https://t.co/RVhnmvds8X\n- https://t.co/Rh9rZb44OU\n- https://t.co/clZYV5m6Nw\n\nWhat am I missing?",
+  "date": "2026-09-02T09:17:28.000Z",
+  "links": [
+   "https://aura.build",
+   "https://design-md.hyperbrowser.ai",
+   "https://designmd.me",
+   "https://designmd.supply",
+   "https://neuform.ai",
+   "https://open-design.ai",
+   "https://styles.refero.design",
+   "https://typeui.sh"
+  ],
+  "image_paths": [
+   "images/tranmautritam_2095078647652917329_0.jpg"
+  ],
+  "component_name": "Refero Styles",
+  "type": "resource",
+  "category": "DESIGN.md library",
+  "style_tags": [
+   "design.md",
+   "style references"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://styles.refero.design",
+  "extraction_status": "link only: browse-only site",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/tranmautritam/status/2095078647652917329",
+  "author_handle": "@tranmautritam",
+  "post_text": "Top best websites to get 𝙳𝙴𝚂𝙸𝙶𝙽.𝚖𝚍. Save for later 👇\n\n- https://t.co/LFLjswsIPw\n- https://t.co/OPdVoVU0S8\n- https://t.co/x4MM8ofvQP\n- https://t.co/b0nqVimRDu\n- getdesign.md\n- https://t.co/eGIRyFL6yl\n- https://t.co/RVhnmvds8X\n- https://t.co/Rh9rZb44OU\n- https://t.co/clZYV5m6Nw\n\nWhat am I missing?",
+  "date": "2026-09-02T09:17:28.000Z",
+  "links": [
+   "https://aura.build",
+   "https://design-md.hyperbrowser.ai",
+   "https://designmd.me",
+   "https://designmd.supply",
+   "https://neuform.ai",
+   "https://open-design.ai",
+   "https://styles.refero.design",
+   "https://typeui.sh"
+  ],
+  "image_paths": [
+   "images/tranmautritam_2095078647652917329_0.jpg"
+  ],
+  "component_name": "TypeUI",
+  "type": "resource",
+  "category": "DESIGN.md/type",
+  "style_tags": [
+   "design.md"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "http://typeui.sh",
+  "extraction_status": "failed: Vercel security checkpoint (HTTP 429) blocked fetch",
+  "source_post_kind": "roundup list"
+ },
+ {
+  "post_url": "https://x.com/emilkowalski/status/2086537097012253051",
+  "author_handle": "@emilkowalski",
+  "post_text": "People DO judge a book by its cover https://t.co/XnAWPVGL7e",
+  "date": "2026-08-09T19:36:24.000Z",
+  "links": [],
+  "image_paths": [
+   "images/emilkowalski_2086537097012253051_0.jpg"
+  ],
+  "component_name": "Emil Kowalski cover design",
+  "type": "inspiration",
+  "category": "visual",
+  "style_tags": [
+   "polish"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: image only",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/DesignGuru01/status/2076268138962755872",
+  "author_handle": "@DesignGuru01",
+  "post_text": "Respect to Fable 5, but this is a different league. https://t.co/ZQBlfXbro9",
+  "date": "2026-07-12T11:31:14.000Z",
+  "links": [],
+  "image_paths": [
+   "images/DesignGuru01_2076268138962755872_0.jpg",
+   "images/DesignGuru01_2076268138962755872_1.jpg",
+   "images/DesignGuru01_2076268138962755872_2.jpg",
+   "images/DesignGuru01_2076268138962755872_3.jpg"
+  ],
+  "component_name": "AI-generated UI shots",
+  "type": "inspiration",
+  "category": "landing page",
+  "style_tags": [
+   "ai generated"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: 4 images only",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/viktoroddy/status/2075545587093807111",
+  "author_handle": "@viktoroddy",
+  "post_text": "The New GPT 5.6 Sol is insane.\n\n❤️‍🔥Just recorded a 21-min Full Tutorial on How To Build Premium, Cinematic Websites with GPT 5.6 Sol! https://t.co/rTMd8x40ZE",
+  "date": "2026-07-10T11:40:04.000Z",
+  "links": [],
+  "image_paths": [
+   "images/viktoroddy_2075545587093807111_0.jpg"
+  ],
+  "component_name": "Cinematic websites with GPT 5.6 Sol",
+  "type": "tutorial",
+  "category": "hero/landing page",
+  "style_tags": [
+   "cinematic"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video tutorial",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/konstipaulus/status/2064011863889788972",
+  "author_handle": "@konstipaulus",
+  "post_text": "Introducing text-to-lottie: an open source skill and harness for generating production ready Lottie animations with codex/claude code.\n\n$ npx skills add diffusionstudio/lottie\n\nPrompts guide and repo in the comments.",
+  "date": "2026-06-08T15:49:10.000Z",
+  "links": [],
+  "image_paths": [
+   "images/konstipaulus_2064011863889788972_0.jpg"
+  ],
+  "component_name": "text-to-lottie",
+  "type": "tool",
+  "category": "animation",
+  "style_tags": [
+   "lottie",
+   "ai skill"
+  ],
+  "framework": "TS/Lottie",
+  "code_path": "code/repos/diffusionstudio__lottie",
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "full code (repo from install cmd npx skills add diffusionstudio/lottie)",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/guerriero_se/status/2062906242247319896",
+  "author_handle": "@guerriero_se",
+  "post_text": "Drag enough to collapse it.\n\nDemo ↓ https://t.co/VPBDZByBus",
+  "date": "2026-06-05T14:35:49.000Z",
+  "links": [],
+  "image_paths": [
+   "images/guerriero_se_2062906242247319896_0.jpg"
+  ],
+  "component_name": "Drag-to-collapse interaction",
+  "type": "component",
+  "category": "gesture/drawer",
+  "style_tags": [
+   "drag",
+   "interaction"
+  ],
+  "framework": "unknown",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: demo is video; \"demo\" link in reply not available from bookmark data",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/bbssppllvv/status/2049924037111841027",
+  "author_handle": "@bbssppllvv",
+  "post_text": "Agents make ugly UIs because they've never seen good design.\n\nWe've been fixing that,  2,000 DESIGN.md files from the world's best products, structured for a model to read and learn. Colors, type, spacing, layouts and more.\n\nFree. https://t.co/mJaKNHba0O https://t.co/GkbyV1HMRQ",
+  "date": "2026-04-30T18:49:10.000Z",
+  "links": [
+   "https://styles.refero.design"
+  ],
+  "image_paths": [
+   "images/bbssppllvv_2049924037111841027_0.jpg"
+  ],
+  "component_name": "Refero Styles: 2,000 DESIGN.md files",
+  "type": "resource",
+  "category": "DESIGN.md library",
+  "style_tags": [
+   "design.md"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "https://styles.refero.design",
+  "extraction_status": "link only: browse-only site",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/stitchbygoogle/status/2046624729403142320",
+  "author_handle": "@stitchbygoogle",
+  "post_text": "Today, we’re open-sourcing the draft specification for DESIGN.md, so it can be used across any tool or platform. We’re also adding new capabilities.\n\nDESIGN.md lets you easily export and import your design rules from project to project. Instead of guessing intent, agents know exactly what a color is for and can even validate their choices against WCAG accessibility rules.\n\nWatch David East break down this shared visual language in action👇. New capabilities and links in 🧵",
+  "date": "2026-04-21T16:18:54.000Z",
+  "links": [],
+  "image_paths": [
+   "images/stitchbygoogle_2046624729403142320_0.jpg"
+  ],
+  "component_name": "DESIGN.md spec (Google Stitch)",
+  "type": "spec",
+  "category": "design system",
+  "style_tags": [
+   "design.md",
+   "tokens",
+   "wcag"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: links are in thread replies, not fetched",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/RoundtableSpace/status/2045030749598810280",
+  "author_handle": "@RoundtableSpace",
+  "post_text": "THIS GUY JUST DROPPED A 16 MIN TUTORIAL ON USING GEMINI 3.1 + SEEDANCE 2.0 TO BUILD CINEMATIC $10K WEBSITES\n\nhttps://t.co/AinuKm5gkn",
+  "date": "2026-04-17T06:45:00.000Z",
+  "links": [],
+  "image_paths": [
+   "images/RoundtableSpace_2045030749598810280_0.jpg"
+  ],
+  "component_name": "Cinematic $10K websites tutorial",
+  "type": "tutorial",
+  "category": "hero/landing page",
+  "style_tags": [
+   "cinematic",
+   "video bg"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/lucas__crespo/status/2024335893436457354",
+  "author_handle": "@lucas__crespo",
+  "post_text": "I'm obsessed with @mercury's new landing page https://t.co/beXblCokRS",
+  "date": "2026-02-19T04:11:01.000Z",
+  "links": [],
+  "image_paths": [
+   "images/lucas__crespo_2024335893436457354_0.jpg"
+  ],
+  "component_name": "Mercury's new landing page",
+  "type": "block",
+  "category": "landing page",
+  "style_tags": [
+   "fintech",
+   "premium"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": "https://mercury.com",
+  "extraction_status": "link only: video of live site",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/endpoint/status/2018471946435080377",
+  "author_handle": "@endpoint",
+  "post_text": "this research paper's website is so sick!! https://t.co/YjTPeOS30o",
+  "date": "2026-02-02T23:49:48.000Z",
+  "links": [],
+  "image_paths": [
+   "images/endpoint_2018471946435080377_0.jpg"
+  ],
+  "component_name": "Research paper website",
+  "type": "inspiration",
+  "category": "landing page",
+  "style_tags": [
+   "scrollytelling"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video, site URL not in post",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/basit_designs/status/2018287757076869566",
+  "author_handle": "@basit_designs",
+  "post_text": "When design looks this sharp, investors assume the numbers are too.\nThat’s the power of a premium landing page. https://t.co/xqGnhnIZcj",
+  "date": "2026-02-02T11:37:53.000Z",
+  "links": [],
+  "image_paths": [
+   "images/basit_designs_2018287757076869566_0.jpg"
+  ],
+  "component_name": "Premium SaaS landing page",
+  "type": "block",
+  "category": "landing page",
+  "style_tags": [
+   "premium"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/Aurelien_Gz/status/2008945454864887966",
+  "author_handle": "@Aurelien_Gz",
+  "post_text": "this is what i call a pretty clever website..\n\n​the aerial view and nature sounds explain the concept perfectly: being lost in the wild, far from everything\n\n​well done, now i just want to visit these lodges.. https://t.co/jCBQQk8K5r https://t.co/H42AcRv0l0",
+  "date": "2026-01-07T16:54:55.000Z",
+  "links": [
+   "https://twitter.com/dghez_/status/2008916235891638608"
+  ],
+  "image_paths": [
+   "images/Aurelien_Gz_2008945454864887966_0.jpg"
+  ],
+  "component_name": "Lodges site w/ aerial view + nature sounds",
+  "type": "block",
+  "category": "hero",
+  "style_tags": [
+   "immersive",
+   "sound"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video + quoted post",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/JoshRainerGold/status/2004805878155997411",
+  "author_handle": "@JoshRainerGold",
+  "post_text": "Rule of thirds https://t.co/vj8LzxDwrK https://t.co/FgAKbR849H",
+  "date": "2025-12-27T06:45:43.000Z",
+  "links": [
+   "https://twitter.com/doeeyedglrl/status/2004354440158236904"
+  ],
+  "image_paths": [
+   "images/JoshRainerGold_2004805878155997411_0.jpg"
+  ],
+  "component_name": "Rule of thirds",
+  "type": "technique",
+  "category": "layout",
+  "style_tags": [
+   "composition"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: image + quoted post",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/beffjezos/status/1996133735209845087",
+  "author_handle": "@beffjezos",
+  "post_text": "Need an app that does this animation for any text. https://t.co/1jqFoo4gB3",
+  "date": "2025-12-03T08:25:43.000Z",
+  "links": [
+   "https://twitter.com/truthache68/status/1995692891214413983"
+  ],
+  "image_paths": [],
+  "component_name": "Text animation request",
+  "type": "inspiration",
+  "category": "text animation",
+  "style_tags": [
+   "kinetic type"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: quoted post video",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/threejs/status/2104482769757946011",
+  "author_handle": "@threejs",
+  "post_text": "https://t.co/h5pm1oy310",
+  "date": "2026-09-28T08:06:06.000Z",
+  "links": [],
+  "image_paths": [
+   "images/threejs_2104482769757946011_0.jpg"
+  ],
+  "component_name": "three.js showcase (quote of @simonxxoo)",
+  "type": "inspiration",
+  "category": "3D/webgl",
+  "style_tags": [
+   "threejs"
+  ],
+  "framework": "three.js",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/kirtanlb/status/2111883438311841979",
+  "author_handle": "@kirtanlb",
+  "post_text": "holy sound https://t.co/rwFBLrHe51",
+  "date": "2026-10-18T18:13:43.000Z",
+  "links": [
+   "https://twitter.com/kirtanlb/status/2069452123524514243"
+  ],
+  "image_paths": [],
+  "component_name": "\"holy sound\" (UI sound)",
+  "type": "inspiration",
+  "category": "sound/interaction",
+  "style_tags": [
+   "sound"
+  ],
+  "framework": "n/a",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: quoted post",
+  "source_post_kind": "single post"
+ },
+ {
+  "post_url": "https://x.com/chetanankola/status/2107996576228753545",
+  "author_handle": "@chetanankola",
+  "post_text": "Cozy creek - threejs 3D experience of a Creek made in GPT 6 Astra\nThis is running in a browser! can you believe it!\n\nall thing made in blender.. https://t.co/iebiqV0QmV",
+  "date": "2026-10-08T00:48:43.000Z",
+  "links": [],
+  "image_paths": [
+   "images/chetanankola_2107996576228753545_0.jpg"
+  ],
+  "component_name": "Cozy creek 3D experience",
+  "type": "inspiration",
+  "category": "3D/webgl",
+  "style_tags": [
+   "threejs",
+   "blender"
+  ],
+  "framework": "three.js",
+  "code_path": null,
+  "figma_url": null,
+  "demo_url": null,
+  "extraction_status": "link only: video, no demo URL",
+  "source_post_kind": "single post"
+ }
+]

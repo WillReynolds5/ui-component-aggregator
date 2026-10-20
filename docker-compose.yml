@@ -1,0 +1,21 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: component_library
+      POSTGRES_PASSWORD: component_library
+      POSTGRES_DB: component_library
+    ports:
+      - "5433:5432"
+    volumes:
+      - component_library_pg:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U component_library -d component_library"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  component_library_pg:

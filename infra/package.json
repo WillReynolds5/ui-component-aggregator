@@ -1,0 +1,17 @@
+{
+  "name": "component-library-infra",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "synth": "node ../scripts/ensure-lambda-stub.mjs && cdk synth",
+    "diff": "cdk diff",
+    "deploy": "echo 'Deploy from the Mac with AWS_PROFILE=personal. See DEPLOY.md.'"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.1029.0",
+    "aws-cdk-lib": "^2.220.0",
+    "constructs": "^10.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

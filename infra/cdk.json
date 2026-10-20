@@ -1,0 +1,11 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/app.ts",
+  "context": {
+    "@aws-cdk/core:newStyleStackSynthesis": true,
+    "account": "848989864994",
+    "region": "us-east-2",
+    "domain": "ui-component-aggregator.com",
+    "hostedZoneId": "Z0691530X4EHVLH71WJW",
+    "certificateArn": "arn:aws:acm:us-east-1:848989864994:certificate/2c5c65c0-a371-4371-9b67-417c5dff1216"
+  }
+}
