@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { CatalogShell } from "@/components/catalog-shell";
 import { listCategories, listCreators } from "@/db/queries";
 
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CreatorsPage() {
+  await connection();
   const [categories, creators] = await Promise.all([listCategories(), listCreators()]);
 
   return (

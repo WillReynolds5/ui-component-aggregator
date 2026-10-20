@@ -1,4 +1,4 @@
-CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS vector;--> statement-breakpoint
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 --> statement-breakpoint
 CREATE TYPE "public"."access" AS ENUM('full_code', 'install_only', 'link_only');--> statement-breakpoint

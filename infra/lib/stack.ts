@@ -57,7 +57,7 @@ export class ComponentLibraryStack extends cdk.Stack {
 
     const cluster = new rds.DatabaseCluster(this, "CatalogDb", {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_16_6,
+        version: rds.AuroraPostgresEngineVersion.of("16.8", "16"),
       }),
       vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
@@ -116,7 +116,7 @@ export class ComponentLibraryStack extends cdk.Stack {
         AURORA_CLUSTER_ARN: cluster.clusterArn,
         AURORA_SECRET_ARN: cluster.secret?.secretArn ?? "",
         AURORA_DATABASE: DATABASE_NAME,
-        INGEST_SECRET: cdk.SecretValue.ssmSecure(INGEST_SECRET_PARAMETER).unsafeUnwrap(),
+        INGEST_SECRET: process.env.INGEST_SECRET ?? (() => { throw new Error("Set INGEST_SECRET (aws ssm get-parameter --with-decryption)"); })(),
       },
       logGroup: appLogs,
     });
