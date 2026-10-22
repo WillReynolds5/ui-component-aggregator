@@ -18,6 +18,8 @@ export type IngestResult = {
   updated: number;
   skipped: number;
   slugs: string[];
+  /** Ids of every item written, so callers can follow up (e.g. preview capture). */
+  itemIds: string[];
 };
 
 async function ensureCategoryId(
@@ -169,7 +171,7 @@ async function writeMappedItem(
     tagSlugs: Set<string>;
     itemSlugs: Set<string>;
   },
-): Promise<"created" | "updated"> {
+): Promise<{ status: "created" | "updated"; itemId: string }> {
   const categoryId = await ensureCategoryId(db, mapped.categorySlug, caches.categories);
   const sourceId = await upsertSource(db, mapped, caches.sourceSlugs);
   const creatorId = await upsertCreator(db, mapped, caches.creatorSlugs);
@@ -207,7 +209,9 @@ async function writeMappedItem(
     itemId = existing.id;
     status = "updated";
     await db.delete(itemTags).where(eq(itemTags.itemId, itemId));
-    await db.delete(media).where(eq(media.itemId, itemId));
+    await db
+      .delete(media)
+      .where(and(eq(media.itemId, itemId), eq(media.source, "scrape")));
   } else {
     const slug = slugifyUnique(mapped.name, caches.itemSlugs);
     const [created] = await db
@@ -237,7 +241,7 @@ async function writeMappedItem(
     );
   }
 
-  return status;
+  return { status, itemId };
 }
 
 export async function ingestMappedItems(records: MappedItem[]): Promise<IngestResult> {
@@ -259,15 +263,16 @@ export async function ingestMappedItems(records: MappedItem[]): Promise<IngestRe
     itemSlugs: new Set(existingItems.map((row) => row.slug)),
   };
 
-  const result: IngestResult = { created: 0, updated: 0, skipped: 0, slugs: [] };
+  const result: IngestResult = { created: 0, updated: 0, skipped: 0, slugs: [], itemIds: [] };
   for (const mapped of records) {
     if (!mapped.sourceUrl) {
       result.skipped += 1;
       continue;
     }
-    const status = await writeMappedItem(db, mapped, caches);
+    const { status, itemId } = await writeMappedItem(db, mapped, caches);
     result[status] += 1;
     result.slugs.push(mapped.slugHint);
+    result.itemIds.push(itemId);
   }
   return result;
 }

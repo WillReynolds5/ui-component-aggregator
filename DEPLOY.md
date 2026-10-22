@@ -107,3 +107,38 @@ Uses the existing us-east-1 cert ARN from `infra/cdk.json`.
 | DB | Aurora PostgreSQL 16 Serverless v2, min 0 / max 1 ACU, Data API, no NAT |
 | Ingest | SSM `/component-library/INGEST_SECRET` |
 | Update Lambda only | `npm run lambda:build` then `aws lambda update-function-code --zip-file fileb://dist/function.zip` |
+
+## After a deploy that adds a migration or taxonomy change
+
+```bash
+export AWS_PROFILE=personal
+export AWS_REGION=us-east-2
+export AURORA_CLUSTER_ARN="$CLUSTER_ARN"
+export AURORA_SECRET_ARN="$SECRET_ARN"
+export AURORA_DATABASE=component_library
+
+npm run db:migrate:dataapi   # e.g. 0001 adds media.source
+npm run db:seed:dataapi      # re-maps seed items onto the current taxonomy
+```
+
+## Preview screenshots
+
+Automatic once deployed: ingest invokes the `CapturePreviews` function for new items, and a daily rule retries anything missed. `cdk deploy` bundles it locally with esbuild (no Docker) and uploads about 87 MB of Chromium as an asset.
+
+Backfill items that existed before the function did, once, after the first deploy:
+
+```bash
+aws lambda invoke --profile personal --region us-east-2 \
+  --function-name "$CAPTURE_FUNCTION_NAME" \
+  --cli-binary-format raw-in-base64-out \
+  --payload '{"limit": 40}' /dev/stdout
+```
+
+Repeat until it reports `"captured": 0` (each run is capped by the 5-minute timeout). Or run the CLI from the Mac against production:
+
+```bash
+npx playwright install chromium   # once
+PREVIEWS_BUCKET="$ASSETS_BUCKET" npm run previews:capture
+```
+
+Logs: CloudWatch group `ComponentLibraryStack-CaptureLogs…`, one JSON line per item.

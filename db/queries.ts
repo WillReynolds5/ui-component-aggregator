@@ -1,4 +1,18 @@
-import { and, asc, cosineDistance, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  cosineDistance,
+  desc,
+  eq,
+  gte,
+  ilike,
+  inArray,
+  ne,
+  or,
+  type SQL,
+  sql,
+} from "drizzle-orm";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import {
   categories,
   creators,
@@ -45,9 +59,11 @@ export type ItemCardRecord = {
   media: Array<{
     id: string;
     kind: "image" | "video" | "demo_url";
+    source: "scrape" | "capture";
     url: string;
     alt: string | null;
   }>;
+  discoveredAt: Date;
 };
 
 export async function listCategories() {
@@ -55,6 +71,28 @@ export async function listCategories() {
   return db.query.categories.findMany({
     orderBy: [asc(categories.sortOrder), asc(categories.name)],
   });
+}
+
+/** Item count per category id, counting only each item's primary category. */
+export async function listCategoryCounts(): Promise<Record<string, number>> {
+  const db = getDb();
+  const rows = await db
+    .select({
+      categoryId: items.primaryCategoryId,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(items)
+    .groupBy(items.primaryCategoryId);
+  return Object.fromEntries(rows.map((row) => [row.categoryId, row.count]));
+}
+
+export async function countItems(since?: Date): Promise<number> {
+  const db = getDb();
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(items)
+    .where(since ? gte(items.discoveredAt, since) : undefined);
+  return row?.count ?? 0;
 }
 
 export async function listTags() {
@@ -101,6 +139,7 @@ function cardFromRow(row: {
   primaryCategory: ItemCardRecord["primaryCategory"];
   tags: Array<{ tag: { slug: string; name: string } }>;
   media: ItemCardRecord["media"];
+  discoveredAt: Date;
 }): ItemCardRecord {
   return {
     id: row.id,
@@ -139,10 +178,21 @@ function cardFromRow(row: {
     media: row.media.map((entry) => ({
       id: entry.id,
       kind: entry.kind,
+      source: entry.source,
       url: entry.url,
       alt: entry.alt,
     })),
+    discoveredAt: row.discoveredAt,
   };
+}
+
+/**
+ * `column = value` for a Postgres enum column. The RDS Data API binds every string parameter
+ * as `text`, and Postgres has no `enum = text` operator, so production needs the explicit cast.
+ * Local postgres-js infers the type, which is why plain `eq` only fails in production.
+ */
+function enumEq(column: AnyPgColumn, value: string, enumType: string): SQL {
+  return sql`${column} = cast(${value} as ${sql.raw(enumType)})`;
 }
 
 export type CreatorFacet = {
@@ -159,10 +209,10 @@ async function catalogConditions(
   const db = getDb();
   const conditions = [];
 
-  if (filters.kind) conditions.push(eq(items.kind, filters.kind));
+  if (filters.kind) conditions.push(enumEq(items.kind, filters.kind, "item_kind"));
   if (filters.framework) conditions.push(eq(items.framework, filters.framework));
-  if (filters.pricing) conditions.push(eq(items.pricing, filters.pricing));
-  if (filters.access) conditions.push(eq(items.access, filters.access));
+  if (filters.pricing) conditions.push(enumEq(items.pricing, filters.pricing, "pricing"));
+  if (filters.access) conditions.push(enumEq(items.access, filters.access, "access"));
 
   if (filters.categorySlug) {
     const slugs = await categoryDescendantSlugs(filters.categorySlug);
@@ -435,7 +485,7 @@ export async function getCreatorBySlug(slug: string) {
 export async function relatedItems(itemId: string, categoryId: string, take = 6) {
   const db = getDb();
   const rows = await db.query.items.findMany({
-    where: and(eq(items.primaryCategoryId, categoryId), sql`${items.id} <> ${itemId}`),
+    where: and(eq(items.primaryCategoryId, categoryId), ne(items.id, itemId)),
     with: {
       source: true,
       creator: true,

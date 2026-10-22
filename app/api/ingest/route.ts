@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestPreviewCapture } from "@/lib/catalog/capture-trigger";
 import { ingestScrapeRecords } from "@/lib/catalog/ingest";
 import { mapScrapeRecord } from "@/lib/catalog/mapping";
 import { normalizeIngestBody } from "@/lib/catalog/ingest-schema";
@@ -36,7 +37,9 @@ export async function POST(request: NextRequest) {
       });
     }
     const result = await ingestScrapeRecords(records);
-    return NextResponse.json({ ok: true, ...result });
+    // Screenshot new finds now, while the database is awake. Already-captured items are skipped.
+    const previews = await requestPreviewCapture(result.itemIds);
+    return NextResponse.json({ ok: true, ...result, previews });
   } catch (error) {
     if (error instanceof DatabaseNotConfiguredError) {
       return NextResponse.json({ error: error.message }, { status: 503 });

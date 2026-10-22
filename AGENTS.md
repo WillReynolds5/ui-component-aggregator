@@ -37,6 +37,9 @@ npm run dev          # http://127.0.0.1:4321
 | `infra/` | CDK stack, us-east-2, zip Lambda + CloudFront + Data API |
 | `DEPLOY.md` | Ordered Mac deploy commands (profile `personal`) |
 | `scripts/build-lambda.sh` | Apple Silicon–friendly standalone zip + static tree |
+| `scripts/capture-previews.ts` | CLI: Playwright screenshots → `public/previews/` locally, or S3 with `PREVIEWS_BUCKET` |
+| `functions/capture-previews.ts` | Lambda (x86_64) running the same capture in prod; core in `lib/catalog/capture-run.ts` |
+| `app/@modal/` | Quick-view modal: intercepts `/items/[slug]` on soft navigation |
 | `data/seed/components.json` | 62-record X scrape |
 
 Owner apps (`family-graph`, stellar/gong) were private and not readable from this environment. This repo follows the paths they named: `aws/`, `infra/`, `buildspec.yml`, Drizzle like gong, `proxy.ts` + `next.config.ts` like family-graph.
@@ -61,6 +64,20 @@ erDiagram
 
 `item_parts(parent_item_id, child_item_id)` is block → component composition (`built from` / `used in`).
 
+## Taxonomy and UI
+
+`lib/catalog/taxonomy.ts` is the sidebar. Top-level nodes are sections, children are element types. Slugs are ids that items reference, so rename `name`, never `slug`; re-seed after edits (the seed deletes categories that left the tree and have no items). `mapScrapeCategory(category, type)` maps raw scrape labels through every node's name, slug, and `aliases`; a strong scrape `type` (tool, tutorial, component library…) wins over the category. Unknown labels land in `other`.
+
+Every page reads the DB inside `<Suspense>`, after `connection()` (see `db/browse.ts`). `cacheComponents` is on: a top-level DB read crashes the route in production, and the RDS Data API client's random ids are refused during prerender.
+
+## Previews
+
+`media.source` is `scrape` (replaced on every re-ingest) or `capture` (our screenshots, kept). `pickPreview` prefers a capture. X, YouTube, and LinkedIn URLs are skipped (login walls). Cookie banners are hidden with CSS, never accepted. Files are content-hashed and served from `/previews/*`.
+
+In production it's automatic. `POST /api/ingest` async-invokes the `CapturePreviews` Lambda with the ids it just wrote (batches of 10, `CAPTURE_FUNCTION_NAME`), and an EventBridge rule sweeps up to 25 uncaptured items daily. There's deliberately no frequent schedule: each run queries Aurora, and waking it from 0 ACU every half hour would cost more than the job. Locally `CAPTURE_FUNCTION_NAME` is unset, so ingest skips it; run `npm run previews:capture` (`--slug`, `--force`, `--limit`).
+
+Lambda gotchas, all found by running the bundle in `public.ecr.aws/lambda/nodejs:22`: `@sparticuz/chromium`'s npm build is x64-only (hence x86_64), it's ESM-only (hence the ESM bundle + `require` banner in `infra/lib/stack.ts`), and it runs `--single-process`, where closing a context kills the browser (hence one browser per item). Keep `playwright`, `playwright-core`, and `@sparticuz/chromium` on matching Chromium majors (1.63.0 ↔ 153.0.0) when upgrading.
+
 ## Search
 
 `lib/catalog/search.ts` + `db/queries.ts`:
@@ -74,7 +91,7 @@ Creator inference (`lib/catalog/creators.ts`) prefers GitHub owner / known alias
 
 ## Ingest
 
-`POST /api/ingest` accepts one scrape record, an array, or `{ items, dryRun }`. Production requires `Authorization: Bearer $INGEST_SECRET`. Mapping lives in `lib/catalog/mapping.ts` so the scraper and seed share one path.
+`POST /api/ingest` accepts one scrape record, an array, or `{ items, dryRun }`. Send public image URLs (e.g. the post's `pbs.twimg.com` media) in `image_paths`; local paths are ignored by the UI. Never generate placeholder `code`. Production requires `Authorization: Bearer $INGEST_SECRET`. Mapping lives in `lib/catalog/mapping.ts` so the scraper and seed share one path.
 
 ## AWS / cost
 

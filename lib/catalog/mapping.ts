@@ -1,5 +1,5 @@
 import { inferCreator } from "@/lib/catalog/creators";
-import { mapScrapeCategory } from "@/lib/catalog/taxonomy";
+import { mapScrapeCategory, TAXONOMY } from "@/lib/catalog/taxonomy";
 import { slugify } from "@/lib/catalog/slug";
 
 export type ScrapeRecord = {
@@ -51,17 +51,9 @@ export type MappedItem = {
 };
 
 const BLOCK_TYPES = new Set(["block"]);
-const BLOCK_CATEGORIES = new Set([
-  "landing page",
-  "hero/landing page",
-  "hero",
-  "landing page templates",
-  "dashboard",
-  "pricing",
-  "features",
-  "footer",
-  "auth",
-]);
+const BLOCK_CATEGORIES = new Set(
+  TAXONOMY.find((node) => node.slug === "blocks")?.children?.map((node) => node.slug) ?? [],
+);
 
 export function normalizeFramework(raw: string | null | undefined): {
   framework: string;
@@ -167,22 +159,6 @@ export function hostLabel(url: string | null | undefined): string | null {
   }
 }
 
-function sampleCode(name: string, framework: string, repoUrl: string | null): string {
-  const component = name.replace(/[^A-Za-z0-9]/g, "") || "Component";
-  const importLine =
-    framework === "react"
-      ? 'import * as React from "react";\n\n'
-      : "";
-  const source = repoUrl ? `\n// Source: ${repoUrl}\n` : "";
-  return `${importLine}export function ${component}() {${source}  return (
-    <section className="rounded-2xl border border-zinc-200 p-6">
-      <p className="text-sm text-zinc-500">Preview stub for ${name}</p>
-    </section>
-  );
-}
-`;
-}
-
 export function mapScrapeRecord(record: ScrapeRecord): MappedItem {
   const name = (record.component_name ?? "Untitled").trim() || "Untitled";
   const demo = record.demo_url
@@ -198,9 +174,9 @@ export function mapScrapeRecord(record: ScrapeRecord): MappedItem {
   const { framework, styling, dependencies } = normalizeFramework(record.framework);
   const inferred = inferAccess(record.extraction_status);
   const type = (record.type ?? "").toLowerCase();
-  const category = (record.category ?? "").toLowerCase();
+  const categorySlug = mapScrapeCategory(record.category, record.type);
   const kind: MappedItem["kind"] =
-    BLOCK_TYPES.has(type) || BLOCK_CATEGORIES.has(category) ? "block" : "component";
+    BLOCK_TYPES.has(type) || BLOCK_CATEGORIES.has(categorySlug) ? "block" : "component";
 
   const sourceHomepage = firstHttpUrl([demo, links[0], repoUrl]);
   const sourceName = hostLabel(sourceHomepage) ?? name;
@@ -246,10 +222,8 @@ export function mapScrapeRecord(record: ScrapeRecord): MappedItem {
     pricing: inferred.pricing,
     license: inferred.access === "full_code" ? "see-source" : null,
     access: inferred.access,
-    code:
-      inferred.access === "full_code"
-        ? sampleCode(name, framework, repoUrl)
-        : null,
+    // The scrape has no inline source yet; never invent placeholder code.
+    code: null,
     installCommand,
     sourceUrl,
     sourceName,
@@ -262,7 +236,7 @@ export function mapScrapeRecord(record: ScrapeRecord): MappedItem {
     creatorWebsite: creator.website,
     discoveredViaPostUrl: record.post_url ?? null,
     discoveredAt: record.date ? new Date(record.date) : new Date(),
-    categorySlug: mapScrapeCategory(record.category),
+    categorySlug,
     tags,
     media,
   };
