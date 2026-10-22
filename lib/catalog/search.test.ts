@@ -47,7 +47,8 @@ describe("parseSearchParams", () => {
 describe("taxonomy", () => {
   it("includes the seeded tree", () => {
     const slugs = validCategorySlugs();
-    expect(slugs.has("components")).toBe(true);
+    expect(slugs.has("libraries")).toBe(true);
+    expect(slugs.has("dropdown-menus")).toBe(true);
     expect(slugs.has("buttons")).toBe(true);
     expect(slugs.has("traces")).toBe(true);
     expect(slugs.has("3d")).toBe(true);
@@ -56,7 +57,18 @@ describe("taxonomy", () => {
   it("maps scrape categories onto the tree", () => {
     expect(mapScrapeCategory("ai/agent activity")).toBe("traces");
     expect(mapScrapeCategory("3D/webgl")).toBe("3d");
-    expect(mapScrapeCategory("mystery")).toBe("components");
+    expect(mapScrapeCategory("mystery")).toBe("other");
+    expect(mapScrapeCategory("Dropdown Menu")).toBe("dropdown-menus");
+    expect(mapScrapeCategory("modal")).toBe("dialogs");
+    expect(mapScrapeCategory("animated dropdown/menu")).toBe("dropdown-menus");
+  });
+
+  it("lets the scrape type win over a thematic category", () => {
+    expect(mapScrapeCategory("animation", "component library")).toBe("libraries");
+    expect(mapScrapeCategory("layout/spacing", "technique")).toBe("guides");
+    expect(mapScrapeCategory("inspiration", "talk")).toBe("inspiration");
+    expect(mapScrapeCategory("design tooling", "tool")).toBe("design-tools");
+    expect(mapScrapeCategory("hero", "block")).toBe("hero");
   });
 });
 

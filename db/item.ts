@@ -1,0 +1,14 @@
+import { connection } from "next/server";
+import { loadNav } from "@/db/browse";
+import { getItemBySlug, relatedItems } from "@/db/queries";
+import { categoryTrail } from "@/lib/catalog/category-tree";
+
+export async function loadItem(slug: string) {
+  await connection();
+  const [item, nav] = await Promise.all([getItemBySlug(slug), loadNav()]);
+  if (!item) return null;
+  const related = await relatedItems(item.id, item.primaryCategoryId);
+  return { item, related, trail: categoryTrail(nav.tree, item.primaryCategory.slug) };
+}
+
+export type LoadedItem = NonNullable<Awaited<ReturnType<typeof loadItem>>>;

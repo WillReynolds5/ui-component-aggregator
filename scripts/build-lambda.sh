@@ -31,6 +31,9 @@ fi
 
 # Standalone already traces server deps. Copy the tree as-is.
 cp -R .next/standalone/. dist/lambda/
+# Next copies local .env files into standalone. Production config comes from the Lambda's
+# environment; a stray .env could hand it a local DATABASE_URL or a placeholder INGEST_SECRET.
+rm -f dist/lambda/.env dist/lambda/.env.*
 mkdir -p dist/lambda/.next
 if [[ -d .next/static ]]; then
   cp -R .next/static dist/lambda/.next/static
@@ -39,6 +42,8 @@ if [[ -d public ]]; then
   mkdir -p dist/lambda/public
   cp -R public/. dist/lambda/public/
   cp -R public/. dist/static/
+  # Local screenshots point at local DB rows; production previews live in S3 under previews/.
+  rm -rf dist/lambda/public/previews dist/static/previews
 fi
 if [[ -d .next/static ]]; then
   mkdir -p dist/static/_next

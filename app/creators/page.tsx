@@ -1,56 +1,71 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
-import { CatalogShell } from "@/components/catalog-shell";
-import { listCategories, listCreators } from "@/db/queries";
+import { Suspense } from "react";
+import { CreatorAvatar } from "@/components/creator-avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { listCreators } from "@/db/queries";
 
 export const metadata: Metadata = {
   title: "Creators",
-  description: "Designers and authors whose components and blocks are in the catalog.",
+  description: "Designers and engineers whose components, blocks, and libraries are in the catalog.",
 };
 
-export default async function CreatorsPage() {
-  await connection();
-  const [categories, creators] = await Promise.all([listCategories(), listCreators()]);
-
+export default function CreatorsPage() {
   return (
-    <CatalogShell categories={categories} filters={{}}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-lg font-medium tracking-tight">Creators</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Designers and authors whose components and blocks are in the catalog.
-          </p>
-        </div>
-        {creators.length ? (
-          <ul className="divide-y rounded-xl border">
-            {creators.map((creator) => (
-              <li key={creator.id}>
-                <Link
-                  href={`/creators/${creator.slug}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/60"
-                >
-                  <span>
-                    <span className="font-medium">{creator.name}</span>
-                    {creator.xHandle ? (
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        @{creator.xHandle}
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {creator.count} {creator.count === 1 ? "item" : "items"}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="rounded-xl border border-dashed px-6 py-16 text-center text-sm text-muted-foreground">
-            No creators yet. Seed the catalog first.
-          </p>
-        )}
-      </div>
-    </CatalogShell>
+    <div className="px-4 pt-8 pb-16 sm:px-8">
+      <h1 className="text-3xl font-semibold tracking-tight">Creators</h1>
+      <p className="mt-2 max-w-2xl text-[15px] text-muted-foreground">
+        The designers and engineers behind everything in the catalog.
+      </p>
+      <Suspense fallback={<CreatorsSkeleton />}>
+        <CreatorList />
+      </Suspense>
+    </div>
+  );
+}
+
+async function CreatorList() {
+  await connection();
+  const creators = await listCreators();
+  if (!creators.length) {
+    return (
+      <p className="mt-8 rounded-2xl border border-dashed px-6 py-16 text-center text-sm text-muted-foreground">
+        No creators yet. They appear as the bot finds their work.
+      </p>
+    );
+  }
+  return (
+    <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
+      {creators.map((creator) => (
+        <li key={creator.id}>
+          <Link
+            href={`/creators/${creator.slug}`}
+            className="flex items-center gap-3 rounded-2xl border p-4 transition-colors hover:bg-muted/60"
+          >
+            <CreatorAvatar name={creator.name} size="md" />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-medium">{creator.name}</span>
+              <span className="block truncate text-[13px] text-muted-foreground">
+                {creator.xHandle ? `@${creator.xHandle}` : (creator.website?.replace(/^https?:\/\//, "") ?? "—")}
+              </span>
+            </span>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
+              {creator.count}
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function CreatorsSkeleton() {
+  return (
+    <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Skeleton key={index} className="h-[74px] rounded-2xl" />
+      ))}
+    </div>
   );
 }

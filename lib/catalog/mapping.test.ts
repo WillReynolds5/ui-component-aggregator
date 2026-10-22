@@ -65,8 +65,8 @@ describe("mapScrapeRecord", () => {
     expect(mapped.creatorHandle).toBe("Rachit315");
     expect(mapped.creatorSlug).toBe("rachit315");
     expect(mapped.sourceRepoUrl).toBe("https://github.com/Rachit315/Pin-UI");
-    expect(mapped.categorySlug).toBe("components");
-    expect(mapped.code).toContain("PinUI");
+    expect(mapped.categorySlug).toBe("libraries");
+    expect(mapped.code).toBeNull();
   });
 
   it("maps landing pages to blocks / hero", () => {

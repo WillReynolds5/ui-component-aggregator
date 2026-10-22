@@ -25,6 +25,8 @@ export const accessEnum = pgEnum("access", [
   "link_only",
 ]);
 export const mediaKindEnum = pgEnum("media_kind", ["image", "video", "demo_url"]);
+/** `scrape` rows are replaced on every re-ingest; `capture` rows (our screenshots) survive it. */
+export const mediaSourceEnum = pgEnum("media_source", ["scrape", "capture"]);
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -218,6 +220,7 @@ export const media = pgTable(
       .notNull()
       .references(() => items.id, { onDelete: "cascade" }),
     kind: mediaKindEnum("kind").notNull(),
+    source: mediaSourceEnum("source").notNull().default("scrape"),
     url: text("url").notNull(),
     alt: text("alt"),
     sortOrder: integer("sort_order").notNull().default(0),
