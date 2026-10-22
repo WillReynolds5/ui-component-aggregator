@@ -84,7 +84,14 @@ async function screenshot(browser: Browser, url: string): Promise<Buffer> {
     await page.addStyleTag({ content: HIDE_OVERLAYS_CSS }).catch(() => {});
     // Let entrance animations and lazy hero media settle.
     await page.waitForTimeout(2_500);
-    return await page.screenshot({ type: "jpeg", quality: 82 });
+    // Freezing animations lets heavy animated pages settle; in Lambda's software-only
+    // rendering they otherwise blew the default 30s screenshot timeout.
+    return await page.screenshot({
+      type: "jpeg",
+      quality: 82,
+      animations: "disabled",
+      timeout: 45_000,
+    });
   } finally {
     await context.close();
   }

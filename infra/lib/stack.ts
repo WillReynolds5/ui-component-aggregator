@@ -149,7 +149,8 @@ export class ComponentLibraryStack extends cdk.Stack {
       handler: "handler",
       runtime: lambda.Runtime.NODEJS_22_X,
       architecture: lambda.Architecture.X86_64,
-      memorySize: 2048,
+      // Peaked at ~1.9 GB of 2 GB during the first backfill; more memory also means more CPU.
+      memorySize: 3008,
       timeout: cdk.Duration.minutes(5),
       retryAttempts: 1,
       projectRoot: root,
