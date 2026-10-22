@@ -76,6 +76,8 @@ Every page reads the DB inside `<Suspense>`, after `connection()` (see `db/brows
 
 In production it's automatic. `POST /api/ingest` async-invokes the `CapturePreviews` Lambda with the ids it just wrote (batches of 10, `CAPTURE_FUNCTION_NAME`), and an EventBridge rule sweeps up to 25 uncaptured items daily. There's deliberately no frequent schedule: each run queries Aurora, and waking it from 0 ACU every half hour would cost more than the job. Locally `CAPTURE_FUNCTION_NAME` is unset, so ingest skips it; run `npm run previews:capture` (`--slug`, `--force`, `--limit`).
 
+Enums under the RDS Data API: every string param arrives as `text`. Comparisons need `enumEq` from `db/enum.ts` (never `eq` on an enum column; it passes locally on postgres-js and fails in production). Inserts and updates rely on implicit `text → enum` casts from migration 0002; a new `pgEnum` needs its name added there.
+
 Lambda gotchas, all found by running the bundle in `public.ecr.aws/lambda/nodejs:22`: `@sparticuz/chromium`'s npm build is x64-only (hence x86_64), it's ESM-only (hence the ESM bundle + `require` banner in `infra/lib/stack.ts`), and it runs `--single-process`, where closing a context kills the browser (hence one browser per item). Keep `playwright`, `playwright-core`, and `@sparticuz/chromium` on matching Chromium majors (1.63.0 ↔ 153.0.0) when upgrading.
 
 ## Search

@@ -125,16 +125,17 @@ npm run db:seed:dataapi      # re-maps seed items onto the current taxonomy
 
 Automatic once deployed: ingest invokes the `CapturePreviews` function for new items, and a daily rule retries anything missed. `cdk deploy` bundles it locally with esbuild (no Docker) and uploads about 87 MB of Chromium as an asset.
 
-Backfill items that existed before the function did, once, after the first deploy:
+Backfill items that existed before the function did, once, after the first deploy. A run stops
+starting new pages a minute before its 5-minute timeout (about 12 items) and reports `pending`:
 
 ```bash
 aws lambda invoke --profile personal --region us-east-2 \
   --function-name "$CAPTURE_FUNCTION_NAME" \
-  --cli-binary-format raw-in-base64-out \
-  --payload '{"limit": 40}' /dev/stdout
+  --cli-binary-format raw-in-base64-out --cli-read-timeout 330 \
+  --payload '{"limit": 12}' /dev/stdout
 ```
 
-Repeat until it reports `"captured": 0` (each run is capped by the 5-minute timeout). Or run the CLI from the Mac against production:
+Repeat until it reports `"captured": 0, "pending": 0`. Or run the CLI from the Mac against production:
 
 ```bash
 npx playwright install chromium   # once
