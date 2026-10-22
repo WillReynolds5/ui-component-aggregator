@@ -40,6 +40,7 @@ npm run dev          # http://127.0.0.1:4321
 | `scripts/capture-previews.ts` | CLI: Playwright screenshots → `public/previews/` locally, or S3 with `PREVIEWS_BUCKET` |
 | `functions/capture-previews.ts` | Lambda (x86_64) running the same capture in prod; core in `lib/catalog/capture-run.ts` |
 | `app/@modal/` | Quick-view modal: intercepts `/items/[slug]` on soft navigation |
+| `scripts/extract-components.ts` | Library registry → one item per component with a live render (`npm run components:extract`) |
 | `data/seed/components.json` | 62-record X scrape |
 
 Owner apps (`family-graph`, stellar/gong) were private and not readable from this environment. This repo follows the paths they named: `aws/`, `infra/`, `buildspec.yml`, Drizzle like gong, `proxy.ts` + `next.config.ts` like family-graph.
@@ -79,6 +80,12 @@ In production it's automatic. `POST /api/ingest` async-invokes the `CapturePrevi
 Enums under the RDS Data API: every string param arrives as `text`. Comparisons need `enumEq` from `db/enum.ts` (never `eq` on an enum column; it passes locally on postgres-js and fails in production). Inserts and updates rely on implicit `text → enum` casts from migration 0002; a new `pgEnum` needs its name added there.
 
 Lambda gotchas, all found by running the bundle in `public.ecr.aws/lambda/nodejs:22`: `@sparticuz/chromium`'s npm build is x64-only (hence x86_64), it's ESM-only (hence the ESM bundle + `require` banner in `infra/lib/stack.ts`), and it runs `--single-process`, where closing a context kills the browser (hence one browser per item). Keep `playwright`, `playwright-core`, and `@sparticuz/chromium` on matching Chromium majors (1.63.0 ↔ 153.0.0) when upgrading.
+
+## Live components
+
+Libraries that publish a shadcn registry (`/r/registry.json`) are expanded into one item per component: `lib/catalog/registry.ts` reads and categorizes entries, `lib/catalog/render-build.ts` bundles each with esbuild (registry dependencies from memory, npm packages from esm.sh via an import map pinned at build time, Tailwind compiled at build time) into a standalone HTML page, and `scripts/extract-components.ts` verifies every page in Chromium before storing it. Blank or broken renders are skipped and removed, so the grid never shows a dead card. Items link to their library (`library_item_id`), are keyed by `registry_url`, and carry the real source in `code` and `npx shadcn@latest add <url>` as the install command.
+
+Renders are third-party code. Cards show them in `<iframe sandbox="allow-scripts …">` (never `allow-same-origin`), and `/renders/*` is served with `Content-Security-Policy: sandbox …` (next.config locally, a CloudFront response-headers policy in production). List queries never select `code`; a 48-card page of source would exceed the Data API's 1 MB response limit. The in-app browser pane blocks iframes, so check renders with headless Playwright. Paid registry items (e.g. most of reui) return 401 and are skipped; icon sets (`icons-*`) are skipped on purpose.
 
 ## Search
 

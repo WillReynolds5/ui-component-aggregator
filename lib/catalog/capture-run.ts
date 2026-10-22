@@ -8,7 +8,7 @@
  * /previews/<file>.
  */
 import { mkdir, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { and, eq, inArray, type SQL } from "drizzle-orm";
 import type { Browser } from "playwright-core";
@@ -99,24 +99,40 @@ async function screenshot(browser: Browser, url: string): Promise<Buffer> {
 
 let s3: S3Client | undefined;
 
-async function store(fileName: string, image: Buffer) {
+/**
+ * Store a public asset at `/<key>`: in PREVIEWS_BUCKET when set (CloudFront serves
+ * /previews/* and /renders/* from it), otherwise under public/ for local dev.
+ */
+export async function storeAsset(key: string, body: Buffer | string, contentType: string) {
   const bucket = process.env.PREVIEWS_BUCKET;
   if (bucket) {
     s3 ??= new S3Client({ region: process.env.AWS_REGION || "us-east-2" });
     await s3.send(
       new PutObjectCommand({
         Bucket: bucket,
-        Key: `previews/${fileName}`,
-        Body: image,
-        ContentType: "image/jpeg",
+        Key: key,
+        Body: body,
+        ContentType: contentType,
+        // Every stored file name is content-hashed, so it can be cached forever.
         CacheControl: "public, max-age=31536000, immutable",
       }),
     );
     return;
   }
-  const dir = resolve(process.cwd(), process.env.PREVIEWS_DIR || "public/previews");
-  await mkdir(dir, { recursive: true });
-  await writeFile(resolve(dir, fileName), image);
+  const file = resolve(process.cwd(), "public", key);
+  await mkdir(dirname(file), { recursive: true });
+  await writeFile(file, body);
+}
+
+async function store(fileName: string, image: Buffer) {
+  if (!process.env.PREVIEWS_BUCKET && process.env.PREVIEWS_DIR) {
+    // Lambda container tests write somewhere writable instead of public/.
+    const dir = resolve(process.cwd(), process.env.PREVIEWS_DIR);
+    await mkdir(dir, { recursive: true });
+    await writeFile(resolve(dir, fileName), image);
+    return;
+  }
+  await storeAsset(`previews/${fileName}`, image, "image/jpeg");
 }
 
 async function attach(job: CaptureJob, fileName: string) {

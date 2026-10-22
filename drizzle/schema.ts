@@ -24,7 +24,8 @@ export const accessEnum = pgEnum("access", [
   "install_only",
   "link_only",
 ]);
-export const mediaKindEnum = pgEnum("media_kind", ["image", "video", "demo_url"]);
+/** `render`: a built, interactive HTML page of the component (see lib/catalog/render-build.ts). */
+export const mediaKindEnum = pgEnum("media_kind", ["image", "video", "demo_url", "render"]);
 /** `scrape` rows are replaced on every re-ingest; `capture` rows (our screenshots) survive it. */
 export const mediaSourceEnum = pgEnum("media_source", ["scrape", "capture"]);
 
@@ -117,6 +118,12 @@ export const items = pgTable(
       onDelete: "set null",
     }),
     discoveredViaPostUrl: text("discovered_via_post_url"),
+    /** For a component extracted from a library's shadcn registry: the library item. */
+    libraryItemId: uuid("library_item_id").references((): AnyPgColumn => items.id, {
+      onDelete: "cascade",
+    }),
+    /** The registry item JSON this component was extracted from; the re-extract key. */
+    registryUrl: text("registry_url"),
     primaryCategoryId: uuid("primary_category_id")
       .notNull()
       .references(() => categories.id, { onDelete: "restrict" }),
@@ -135,6 +142,8 @@ export const items = pgTable(
     index("items_source_id_idx").on(table.sourceId),
     index("items_creator_id_idx").on(table.creatorId),
     index("items_category_idx").on(table.primaryCategoryId),
+    index("items_library_item_idx").on(table.libraryItemId),
+    uniqueIndex("items_registry_url_idx").on(table.registryUrl),
     index("items_name_trgm_idx").using("gin", sql`${table.name} gin_trgm_ops`),
     index("items_description_trgm_idx").using(
       "gin",
@@ -292,6 +301,12 @@ export const itemsRelations = relations(items, ({ one, many }) => ({
   tags: many(itemTags),
   media: many(media),
   variants: many(variants),
+  library: one(items, {
+    fields: [items.libraryItemId],
+    references: [items.id],
+    relationName: "library_components",
+  }),
+  components: many(items, { relationName: "library_components" }),
   embedding: one(embeddings, {
     fields: [items.id],
     references: [embeddings.itemId],

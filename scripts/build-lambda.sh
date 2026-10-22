@@ -42,8 +42,8 @@ if [[ -d public ]]; then
   mkdir -p dist/lambda/public
   cp -R public/. dist/lambda/public/
   cp -R public/. dist/static/
-  # Local screenshots point at local DB rows; production previews live in S3 under previews/.
-  rm -rf dist/lambda/public/previews dist/static/previews
+  # Local screenshots and renders point at local DB rows; production copies live in S3.
+  rm -rf dist/lambda/public/previews dist/static/previews dist/lambda/public/renders dist/static/renders
 fi
 if [[ -d .next/static ]]; then
   mkdir -p dist/static/_next

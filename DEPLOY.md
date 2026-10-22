@@ -143,3 +143,15 @@ PREVIEWS_BUCKET="$ASSETS_BUCKET" npm run previews:capture
 ```
 
 Logs: CloudWatch group `ComponentLibraryStack-CaptureLogs…`, one JSON line per item.
+
+## Live components
+
+After a deploy that adds the `/renders/*` behavior, extract into production from the Mac:
+
+```bash
+npx playwright install chromium   # once
+PREVIEWS_BUCKET="$ASSETS_BUCKET" npm run components:extract
+```
+
+It only builds components not yet extracted; add `--force` to rebuild, `--library <item-slug>` or `--name <component>` to narrow it.
+

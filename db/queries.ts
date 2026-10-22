@@ -35,6 +35,12 @@ import {
   type SearchFilters,
 } from "@/lib/catalog/search";
 
+/**
+ * Cards never need `code` (extracted components carry their full source). Leaving it out
+ * keeps a page of 48 cards well under the RDS Data API's 1 MB response limit.
+ */
+const CARD_COLUMNS = { code: false } as const;
+
 export type ItemCardRecord = {
   id: string;
   slug: string;
@@ -57,10 +63,12 @@ export type ItemCardRecord = {
     avatarUrl: string | null;
   } | null;
   primaryCategory: { id: string; slug: string; name: string };
+  /** Set for components extracted from a library's registry. */
+  library: { slug: string; name: string } | null;
   tags: Array<{ slug: string; name: string }>;
   media: Array<{
     id: string;
-    kind: "image" | "video" | "demo_url";
+    kind: "image" | "video" | "demo_url" | "render";
     source: "scrape" | "capture";
     url: string;
     alt: string | null;
@@ -141,6 +149,7 @@ function cardFromRow(row: {
   primaryCategory: ItemCardRecord["primaryCategory"];
   tags: Array<{ tag: { slug: string; name: string } }>;
   media: ItemCardRecord["media"];
+  library?: ItemCardRecord["library"];
   discoveredAt: Date;
 }): ItemCardRecord {
   return {
@@ -176,6 +185,7 @@ function cardFromRow(row: {
       slug: row.primaryCategory.slug,
       name: row.primaryCategory.name,
     },
+    library: row.library ?? null,
     tags: row.tags.map((entry) => entry.tag),
     media: row.media.map((entry) => ({
       id: entry.id,
@@ -325,12 +335,14 @@ export async function searchCatalog(filters: SearchFilters): Promise<{
     const records = ids.length
       ? await db.query.items.findMany({
           where: inArray(items.id, ids),
+          columns: CARD_COLUMNS,
           with: {
             source: true,
             creator: true,
             primaryCategory: true,
             tags: { with: { tag: true } },
             media: { orderBy: (table, { asc }) => [asc(table.sortOrder)] },
+            library: { columns: { slug: true, name: true } },
           },
         })
       : [];
@@ -349,12 +361,14 @@ export async function searchCatalog(filters: SearchFilters): Promise<{
   const [rows, countRows] = await Promise.all([
     db.query.items.findMany({
       where,
+      columns: CARD_COLUMNS,
       with: {
         source: true,
         creator: true,
         primaryCategory: true,
         tags: { with: { tag: true } },
         media: { orderBy: (table, { asc }) => [asc(table.sortOrder)] },
+        library: { columns: { slug: true, name: true } },
       },
       orderBy: [desc(items.discoveredAt), asc(items.name)],
       limit: filters.limit ?? 48,
@@ -381,6 +395,7 @@ export async function getItemBySlug(slug: string) {
       primaryCategory: true,
       tags: { with: { tag: true } },
       media: { orderBy: (table, { asc }) => [asc(table.sortOrder)] },
+      library: { columns: { slug: true, name: true } },
       variants: { orderBy: (table, { asc }) => [asc(table.sortOrder)] },
     },
   });
@@ -475,16 +490,38 @@ export async function getCreatorBySlug(slug: string) {
   });
 }
 
-export async function relatedItems(itemId: string, categoryId: string, take = 6) {
+/** Components extracted from a library's registry, for the library's page. */
+export async function libraryComponents(libraryItemId: string, take = 60) {
   const db = getDb();
   const rows = await db.query.items.findMany({
-    where: and(eq(items.primaryCategoryId, categoryId), ne(items.id, itemId)),
+    where: eq(items.libraryItemId, libraryItemId),
+    columns: CARD_COLUMNS,
     with: {
       source: true,
       creator: true,
       primaryCategory: true,
       tags: { with: { tag: true } },
       media: { orderBy: (table, { asc }) => [asc(table.sortOrder)] },
+      library: { columns: { slug: true, name: true } },
+    },
+    orderBy: [asc(items.name)],
+    limit: take,
+  });
+  return rows.map((row) => cardFromRow(row as Parameters<typeof cardFromRow>[0]));
+}
+
+export async function relatedItems(itemId: string, categoryId: string, take = 6) {
+  const db = getDb();
+  const rows = await db.query.items.findMany({
+    where: and(eq(items.primaryCategoryId, categoryId), ne(items.id, itemId)),
+    columns: CARD_COLUMNS,
+    with: {
+      source: true,
+      creator: true,
+      primaryCategory: true,
+      tags: { with: { tag: true } },
+      media: { orderBy: (table, { asc }) => [asc(table.sortOrder)] },
+      library: { columns: { slug: true, name: true } },
     },
     orderBy: [desc(items.discoveredAt)],
     limit: take,

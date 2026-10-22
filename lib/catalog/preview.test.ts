@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { demoUrl, pickPreview } from "@/lib/catalog/preview";
+import { demoUrl, pickPreview, pickRender } from "@/lib/catalog/preview";
 
 describe("pickPreview", () => {
   it("prefers our captured screenshot over a scraped image", () => {
@@ -20,5 +20,17 @@ describe("pickPreview", () => {
     expect(demoUrl([{ kind: "demo_url", url: "https://demo.dev" }], "https://x.com")).toBe(
       "https://demo.dev",
     );
+  });
+});
+
+describe("pickRender", () => {
+  it("finds the live render and ignores images", () => {
+    expect(
+      pickRender([
+        { kind: "image", url: "/previews/a.jpg" },
+        { kind: "render", url: "/renders/pinui/task-card-abc.html" },
+      ])?.url,
+    ).toBe("/renders/pinui/task-card-abc.html");
+    expect(pickRender([{ kind: "image", url: "/previews/a.jpg" }])).toBeNull();
   });
 });

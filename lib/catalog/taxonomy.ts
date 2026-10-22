@@ -35,7 +35,7 @@ export const TAXONOMY: TaxonomyNode[] = [
       leaf("buttons", "Buttons", "Buttons, icon buttons, and button groups.", ["button", "cta button"]),
       leaf("dropdown-menus", "Dropdown menus", "Menus that open from a trigger.", ["dropdown", "dropdown menu", "menu"]),
       leaf("context-menus", "Context menus", "Right-click and long-press menus.", ["context menu", "right click menu"]),
-      leaf("command-menus", "Command menus", "Command palettes and ⌘K launchers.", ["command palette", "command menu", "cmdk", "spotlight"]),
+      leaf("command-menus", "Command menus", "Command palettes and ⌘K launchers.", ["command palette", "command menu", "cmdk", "spotlight", "command"]),
       leaf("toggles", "Toggles", "Toggle buttons and segmented controls.", ["toggle", "segmented control", "toggle group"]),
     ],
   },
@@ -45,14 +45,14 @@ export const TAXONOMY: TaxonomyNode[] = [
     description: "Fields and controls for entering data.",
     children: [
       leaf("text-inputs", "Text inputs", "Text fields, textareas, and search boxes.", ["input", "text input", "textarea", "search input", "text field"]),
-      leaf("selects", "Selects", "Selects, comboboxes, and multi-selects.", ["select", "combobox", "multiselect", "multi select", "autocomplete"]),
+      leaf("selects", "Selects", "Selects, comboboxes, and multi-selects.", ["select", "combobox", "multiselect", "multi select", "autocomplete", "cascader"]),
       leaf("checkboxes", "Checkboxes & radios", "Checkboxes, radio groups, and choice cards.", ["checkbox", "radio", "radio group"]),
       leaf("switches", "Switches", "On/off switches.", ["switch"]),
-      leaf("sliders", "Sliders", "Range sliders and knobs.", ["slider", "range", "knob"]),
+      leaf("sliders", "Sliders", "Range sliders and knobs.", ["slider", "range", "knob", "dial"]),
       leaf("date-pickers", "Date pickers", "Date, time, and range pickers.", ["date picker", "datepicker", "time picker", "calendar picker"]),
-      leaf("file-uploads", "File uploads", "Dropzones and upload progress.", ["file upload", "upload", "dropzone"]),
+      leaf("file-uploads", "File uploads", "Dropzones and upload progress.", ["file upload", "upload", "dropzone", "drop zone"]),
       leaf("otp-inputs", "OTP inputs", "One-time code and PIN fields.", ["otp", "otp input", "pin input"]),
-      leaf("forms", "Forms", "Complete forms and multi-step flows.", ["form", "multi-step form", "wizard"]),
+      leaf("forms", "Forms", "Complete forms and multi-step flows.", ["form", "multi-step form", "wizard", "filter", "filters", "signup form"]),
     ],
   },
   {
@@ -60,7 +60,7 @@ export const TAXONOMY: TaxonomyNode[] = [
     name: "Navigation",
     description: "Ways to move around an app or site.",
     children: [
-      leaf("navbars", "Navbars", "Top bars and headers.", ["navbar", "nav", "header", "nav bar", "top bar"]),
+      leaf("navbars", "Navbars", "Top bars and headers.", ["navbar", "nav", "header", "nav bar", "top bar", "menubar", "navigation menu"]),
       leaf("sidebars", "Sidebars", "Side navigation and app rails.", ["sidebar", "side nav", "rail"]),
       leaf("tabs", "Tabs", "Tab bars and underline tabs.", ["tab", "tab bar"]),
       leaf("breadcrumbs", "Breadcrumbs", "Location trails.", ["breadcrumb"]),
@@ -84,18 +84,18 @@ export const TAXONOMY: TaxonomyNode[] = [
     name: "Data display",
     description: "Ways to show content and records.",
     children: [
-      leaf("cards", "Cards", "Content cards, tiles, and bento grids.", ["card", "bento", "tile"]),
+      leaf("cards", "Cards", "Content cards, tiles, and bento grids.", ["card", "bento", "tile", "widget"]),
       leaf("tables", "Tables", "Data tables and grids.", ["table", "data table", "data grid"]),
-      leaf("lists", "Lists", "Lists, feeds, and kanban columns.", ["list", "feed", "kanban"]),
+      leaf("lists", "Lists", "Lists, feeds, and kanban columns.", ["list", "feed", "kanban", "tree", "tree view"]),
       leaf("avatars", "Avatars", "Avatars and avatar stacks.", ["avatar"]),
-      leaf("badges", "Badges", "Badges, tags, and chips.", ["badge", "chip", "tag", "pill"]),
+      leaf("badges", "Badges", "Badges, tags, and chips.", ["badge", "chip", "tag", "pill", "status dot"]),
       leaf("accordions", "Accordions", "Collapsible sections and FAQs.", ["accordion", "collapsible", "disclosure"]),
       leaf("carousels", "Carousels", "Sliders, marquees, and galleries.", ["carousel", "marquee", "gallery"]),
       leaf("calendars", "Calendars", "Calendars and schedulers.", ["calendar", "scheduler"]),
-      leaf("timelines", "Timelines", "Timelines and activity logs.", ["timeline", "activity log"]),
-      leaf("media-players", "Media players", "Audio and video players.", ["audio player", "video player", "player"]),
-      leaf("code-blocks", "Code blocks", "Code blocks and syntax highlighting.", ["code block", "code", "syntax highlighting"]),
-      leaf("markdown", "Markdown & content", "Markdown, MDX, and rich text.", ["markdown/content", "markdown", "mdx", "rich text", "typography/label"]),
+      leaf("timelines", "Timelines", "Timelines and activity logs.", ["timeline", "activity log", "gantt"]),
+      leaf("media-players", "Media players", "Audio and video players.", ["audio player", "video player", "player", "recorder", "waveform", "visualizer", "spectrum", "level meter", "fader", "volume control", "pan control", "clip indicator", "db readout", "db scale"]),
+      leaf("code-blocks", "Code blocks", "Code blocks and syntax highlighting.", ["code block", "code", "syntax highlighting", "terminal"]),
+      leaf("markdown", "Markdown & content", "Markdown, MDX, and rich text.", ["markdown/content", "markdown", "mdx", "rich text", "typography/label", "changelog", "quote", "annotate", "endpoint", "decision", "kbd", "keys"]),
       leaf("diagrams", "Diagrams", "Flowcharts and node graphs.", ["diagram", "flowchart", "node graph"]),
     ],
   },
@@ -104,11 +104,11 @@ export const TAXONOMY: TaxonomyNode[] = [
     name: "Feedback",
     description: "Status, progress, and messages.",
     children: [
-      leaf("toasts", "Toasts", "Toasts and snackbars.", ["toast", "snackbar", "notification"]),
-      leaf("alerts", "Alerts & banners", "Inline alerts and banners.", ["alert", "banner", "callout"]),
+      leaf("toasts", "Toasts", "Toasts and snackbars.", ["toast", "snackbar", "notification", "sonner"]),
+      leaf("alerts", "Alerts & banners", "Inline alerts and banners.", ["alert", "banner", "callout", "announcement"]),
       leaf("progress", "Progress", "Progress bars, rings, and steppers.", ["progress bar", "stepper", "steps"]),
       leaf("loaders", "Loaders & skeletons", "Spinners, skeletons, and shimmer.", ["skeleton/loading", "skeleton", "loader", "spinner", "loading", "shimmer"]),
-      leaf("empty-states", "Empty states", "Zero-data and error screens.", ["empty state", "404", "error page"]),
+      leaf("empty-states", "Empty states", "Zero-data and error screens.", ["empty state", "404", "error page", "empty"]),
     ],
   },
   {
@@ -142,7 +142,7 @@ export const TAXONOMY: TaxonomyNode[] = [
     description: "Interfaces for chats, tools, traces, and generative UI.",
     children: [
       leaf("chat", "Chat", "Chat threads and message bubbles.", ["chat ui", "messages"]),
-      leaf("prompt-inputs", "Prompt inputs", "Composers and prompt boxes.", ["prompt input", "composer", "prompt box"]),
+      leaf("prompt-inputs", "Prompt inputs", "Composers and prompt boxes.", ["prompt input", "composer", "prompt box", "voice", "voice input"]),
       leaf("generative-ui", "Generative UI", "UI rendered by models.", ["ai/generative ui", "generative ui"]),
       leaf("diffs", "Diffs", "Code and content diffs.", ["diff", "merge conflict"]),
       leaf("traces", "Traces", "Agent traces and activity.", ["ai/agent activity", "trace", "agent activity"]),
@@ -155,7 +155,7 @@ export const TAXONOMY: TaxonomyNode[] = [
     description: "Motion, interaction, and atmosphere.",
     children: [
       leaf("animation-effects", "Animations", "Transitions and motion primitives.", ["animation", "animation/transition", "animation/video", "transition", "motion"]),
-      leaf("text-effects", "Text effects", "Animated and styled type.", ["text animation", "text effect"]),
+      leaf("text-effects", "Text effects", "Animated and styled type.", ["text animation", "text effect", "animated counter", "counter"]),
       leaf("micro-interactions", "Micro-interactions", "Small, delightful interaction details.", ["micro-interaction", "micro interaction", "gesture"]),
       leaf("sound", "Sound", "UI sounds and haptics.", ["sound/interaction", "ui sound", "audio"]),
       leaf("backgrounds-shaders", "Backgrounds & shaders", "Gradients, shaders, and atmospheric backgrounds.", ["gradient/background", "background", "shader", "gradient"]),
@@ -247,6 +247,11 @@ export function mapScrapeCategory(
   }
   if (kind === "inspiration") return "inspiration";
   return FALLBACK_CATEGORY;
+}
+
+/** A known taxonomy slug for this exact label (name, slug, or alias), or undefined. */
+export function lookupCategory(label: string): string | undefined {
+  return CATEGORY_ALIASES.get(normalize(label));
 }
 
 export function validCategorySlugs(nodes: TaxonomyNode[] = TAXONOMY): Set<string> {

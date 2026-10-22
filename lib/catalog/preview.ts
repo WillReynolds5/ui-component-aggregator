@@ -1,5 +1,5 @@
 export type PreviewMedia = {
-  kind: "image" | "video" | "demo_url";
+  kind: "image" | "video" | "demo_url" | "render";
   source?: "scrape" | "capture";
   url: string;
 };
@@ -18,4 +18,9 @@ export function pickPreview<T extends PreviewMedia>(media: T[]): T | null {
 /** The live site to open or screenshot. */
 export function demoUrl<T extends PreviewMedia>(media: T[], fallback?: string | null): string | null {
   return media.find((entry) => entry.kind === "demo_url")?.url ?? fallback ?? null;
+}
+
+/** The built, interactive page for an extracted component, if it has one. */
+export function pickRender<T extends PreviewMedia>(media: T[]): T | null {
+  return media.find((entry) => entry.kind === "render" && isDisplayableUrl(entry.url)) ?? null;
 }

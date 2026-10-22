@@ -50,3 +50,4 @@ next-env.d.ts
 
 # screenshots from npm run previews:capture (prod copies live in S3)
 /public/previews
+/public/renders

@@ -221,6 +221,19 @@ export class ComponentLibraryStack extends cdk.Stack {
       compress: true,
     };
 
+    // Live component renders (npm run components:extract) are third-party code. This header
+    // keeps them in a sandbox with an opaque origin even when opened outside the iframe.
+    const renderSandbox = new cloudfront.ResponseHeadersPolicy(this, "RenderSandbox", {
+      comment: "Sandbox live component renders",
+      securityHeadersBehavior: {
+        contentSecurityPolicy: {
+          contentSecurityPolicy: "sandbox allow-scripts allow-pointer-lock allow-forms",
+          override: true,
+        },
+        contentTypeOptions: { override: true },
+      },
+    });
+
     const distribution = new cloudfront.Distribution(this, "Cdn", {
       comment: domains.domain,
       defaultBehavior: {
@@ -242,6 +255,7 @@ export class ComponentLibraryStack extends cdk.Stack {
         "/_next/static/*": staticBehavior,
         // Screenshots from `npm run previews:capture`, content-hashed so they cache forever.
         "/previews/*": staticBehavior,
+        "/renders/*": { ...staticBehavior, responseHeadersPolicy: renderSandbox },
         "/favicon.ico": staticBehavior,
         "*.svg": staticBehavior,
       },

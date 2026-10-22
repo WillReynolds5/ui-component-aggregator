@@ -6,12 +6,13 @@ import { CopyButton } from "@/components/copy-button";
 import { CreatorAvatar } from "@/components/creator-avatar";
 import { isNew, pricingLabel } from "@/components/item-card";
 import { ItemGrid } from "@/components/item-grid";
+import { LivePreview } from "@/components/live-preview";
 import { PreviewMedia } from "@/components/preview-media";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { LoadedItem } from "@/db/item";
 import { hostLabel } from "@/lib/catalog/mapping";
-import { demoUrl, pickPreview } from "@/lib/catalog/preview";
+import { demoUrl, pickPreview, pickRender } from "@/lib/catalog/preview";
 
 const ACCESS_LABEL = {
   full_code: "Full source",
@@ -51,8 +52,9 @@ function Linkified({ text }: { text: string }) {
 }
 
 export function ItemDetail({ data, inModal = false }: { data: LoadedItem; inModal?: boolean }) {
-  const { item, related, trail } = data;
+  const { item, related, components, trail } = data;
   const preview = pickPreview(item.media);
+  const render = pickRender(item.media);
   const site = demoUrl(item.media, item.sourceUrl);
   const { post, note } = splitDescription(item.description);
   const creatorLabel = item.creator?.xHandle ? `@${item.creator.xHandle}` : item.creator?.name;
@@ -87,6 +89,11 @@ export function ItemDetail({ data, inModal = false }: { data: LoadedItem; inModa
                 {creatorLabel}
               </Link>
             ) : null}
+            {item.library ? (
+              <Link href={`/items/${item.library.slug}`} className="hover:text-foreground">
+                Part of {item.library.name}
+              </Link>
+            ) : null}
             {item.source.homepage ? (
               <a href={item.source.homepage} target="_blank" rel="noreferrer" className="hover:text-foreground">
                 {hostLabel(item.source.homepage) ?? item.source.name}
@@ -117,27 +124,42 @@ export function ItemDetail({ data, inModal = false }: { data: LoadedItem; inModa
         </div>
       </header>
 
-      <a
-        href={site ?? undefined}
-        target="_blank"
-        rel="noreferrer"
-        className="group relative mt-6 block overflow-hidden rounded-2xl"
-      >
-        <PreviewMedia
-          name={item.name}
-          imageUrl={preview?.url}
-          siteUrl={site}
-          priority
-          sizes="hero"
-          className="aspect-[16/10] rounded-2xl"
-        />
-        {site ? (
-          <span className="absolute right-4 bottom-4 inline-flex translate-y-1 items-center gap-1 rounded-full bg-background/90 px-3 py-1.5 text-[13px] font-medium opacity-0 shadow-sm ring-1 ring-black/5 backdrop-blur transition group-hover:translate-y-0 group-hover:opacity-100">
-            Open {hostLabel(site)}
-            <ArrowUpRightIcon className="size-3.5" />
-          </span>
-        ) : null}
-      </a>
+      {render ? (
+        <div className="mt-6">
+          <LivePreview
+            src={render.url}
+            poster={preview?.url}
+            title={item.name}
+            eager
+            className="aspect-[16/10] rounded-2xl"
+          />
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Live component. Click, hover, and type to try it.
+          </p>
+        </div>
+      ) : (
+        <a
+          href={site ?? undefined}
+          target="_blank"
+          rel="noreferrer"
+          className="group relative mt-6 block overflow-hidden rounded-2xl"
+        >
+          <PreviewMedia
+            name={item.name}
+            imageUrl={preview?.url}
+            siteUrl={site}
+            priority
+            sizes="hero"
+            className="aspect-[16/10] rounded-2xl"
+          />
+          {site ? (
+            <span className="absolute right-4 bottom-4 inline-flex translate-y-1 items-center gap-1 rounded-full bg-background/90 px-3 py-1.5 text-[13px] font-medium opacity-0 shadow-sm ring-1 ring-black/5 backdrop-blur transition group-hover:translate-y-0 group-hover:opacity-100">
+              Open {hostLabel(site)}
+              <ArrowUpRightIcon className="size-3.5" />
+            </span>
+          ) : null}
+        </a>
+      )}
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="min-w-0 space-y-8">
@@ -155,7 +177,7 @@ export function ItemDetail({ data, inModal = false }: { data: LoadedItem; inModa
           {post ? (
             <section>
               <SectionTitle>
-                {item.discoveredViaPostUrl ? "From the post on X" : "About"}
+                {item.discoveredViaPostUrl && !item.libraryItemId ? "From the post on X" : "About"}
               </SectionTitle>
               <blockquote className="mt-3 rounded-xl border-l-2 border-foreground/15 bg-surface py-4 pr-5 pl-5 text-[15px] leading-relaxed whitespace-pre-wrap text-foreground/85">
                 <Linkified text={post} />
@@ -224,6 +246,16 @@ export function ItemDetail({ data, inModal = false }: { data: LoadedItem; inModa
           ) : null}
         </aside>
       </div>
+
+      {components.length ? (
+        <section className="mt-16 border-t pt-10">
+          <div className="mb-6 flex items-baseline justify-between gap-3">
+            <h2 className="text-xl font-semibold tracking-tight">Components in {item.name}</h2>
+            <span className="text-sm text-muted-foreground tabular-nums">{components.length}</span>
+          </div>
+          <ItemGrid items={components} dense />
+        </section>
+      ) : null}
 
       {related.length ? (
         <section className="mt-16 border-t pt-10">
