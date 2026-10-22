@@ -6,10 +6,12 @@ import {
   items,
   itemTags,
   media,
+  mediaSourceEnum,
   sources,
   tags,
 } from "@/drizzle/schema";
 import { getDb } from "@/db";
+import { enumEq } from "@/db/enum";
 import { mapScrapeRecord, type MappedItem, type ScrapeRecord } from "@/lib/catalog/mapping";
 import { slugify, slugifyUnique } from "@/lib/catalog/slug";
 
@@ -211,7 +213,7 @@ async function writeMappedItem(
     await db.delete(itemTags).where(eq(itemTags.itemId, itemId));
     await db
       .delete(media)
-      .where(and(eq(media.itemId, itemId), eq(media.source, "scrape")));
+      .where(and(eq(media.itemId, itemId), enumEq(media.source, "scrape", mediaSourceEnum)));
   } else {
     const slug = slugifyUnique(mapped.name, caches.itemSlugs);
     const [created] = await db

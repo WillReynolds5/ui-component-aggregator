@@ -9,17 +9,19 @@ import {
   inArray,
   ne,
   or,
-  type SQL,
   sql,
 } from "drizzle-orm";
-import type { AnyPgColumn } from "drizzle-orm/pg-core";
+import { enumEq } from "@/db/enum";
 import {
+  accessEnum,
   categories,
   creators,
   embeddings,
+  itemKindEnum,
   itemParts,
   items,
   itemTags,
+  pricingEnum,
   tags,
 } from "@/drizzle/schema";
 import { getDb } from "@/db";
@@ -186,15 +188,6 @@ function cardFromRow(row: {
   };
 }
 
-/**
- * `column = value` for a Postgres enum column. The RDS Data API binds every string parameter
- * as `text`, and Postgres has no `enum = text` operator, so production needs the explicit cast.
- * Local postgres-js infers the type, which is why plain `eq` only fails in production.
- */
-function enumEq(column: AnyPgColumn, value: string, enumType: string): SQL {
-  return sql`${column} = cast(${value} as ${sql.raw(enumType)})`;
-}
-
 export type CreatorFacet = {
   slug: string;
   name: string;
@@ -209,10 +202,10 @@ async function catalogConditions(
   const db = getDb();
   const conditions = [];
 
-  if (filters.kind) conditions.push(enumEq(items.kind, filters.kind, "item_kind"));
+  if (filters.kind) conditions.push(enumEq(items.kind, filters.kind, itemKindEnum));
   if (filters.framework) conditions.push(eq(items.framework, filters.framework));
-  if (filters.pricing) conditions.push(enumEq(items.pricing, filters.pricing, "pricing"));
-  if (filters.access) conditions.push(enumEq(items.access, filters.access, "access"));
+  if (filters.pricing) conditions.push(enumEq(items.pricing, filters.pricing, pricingEnum));
+  if (filters.access) conditions.push(enumEq(items.access, filters.access, accessEnum));
 
   if (filters.categorySlug) {
     const slugs = await categoryDescendantSlugs(filters.categorySlug);

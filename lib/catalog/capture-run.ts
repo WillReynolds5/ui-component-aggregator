@@ -13,7 +13,8 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { and, eq, inArray, type SQL } from "drizzle-orm";
 import type { Browser } from "playwright-core";
 import { getDb } from "@/db";
-import { items, media } from "@/drizzle/schema";
+import { enumEq } from "@/db/enum";
+import { items, media, mediaSourceEnum } from "@/drizzle/schema";
 import {
   captureTarget,
   HIDE_OVERLAYS_CSS,
@@ -113,7 +114,9 @@ async function store(fileName: string, image: Buffer) {
 
 async function attach(job: CaptureJob, fileName: string) {
   const db = getDb();
-  await db.delete(media).where(and(eq(media.itemId, job.id), eq(media.source, "capture")));
+  await db
+    .delete(media)
+    .where(and(eq(media.itemId, job.id), enumEq(media.source, "capture", mediaSourceEnum)));
   await db.insert(media).values({
     itemId: job.id,
     kind: "image",
