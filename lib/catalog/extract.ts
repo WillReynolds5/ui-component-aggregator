@@ -15,6 +15,7 @@ import {
   type Registry,
   type RegistryEntry,
 } from "@/lib/catalog/registry";
+import { fetchSitemapUrls } from "@/lib/catalog/component-pages";
 import { slugify, slugifyUnique } from "@/lib/catalog/slug";
 
 export type LibraryRecord = {
@@ -86,6 +87,8 @@ export type LibraryRegistry = {
   registry: Registry;
   /** Full entries (with file contents) for the registry's token / theme items. */
   globalStyles: RegistryEntry[];
+  /** The site's sitemap, for each component's own docs page. */
+  pages: string[];
 };
 
 export async function loadLibraryRegistry(library: LibraryRecord): Promise<LibraryRegistry | null> {
@@ -99,6 +102,7 @@ export async function loadLibraryRegistry(library: LibraryRecord): Promise<Libra
   return {
     registry,
     globalStyles: globalStyles.filter((entry): entry is RegistryEntry => entry !== null && isGlobalStyle(entry)),
+    pages: await fetchSitemapUrls(library.homepage),
   };
 }
 
@@ -123,6 +127,8 @@ export type ExtractedComponent = {
   dependencies: string[];
   renderUrl: string;
   posterUrl: string;
+  /** The component's own docs page; the library homepage when none was found. */
+  pageUrl: string;
 };
 
 /** Create or update the component's item (keyed on its registry URL) and its media. */
@@ -177,7 +183,7 @@ export async function upsertComponent(component: ExtractedComponent): Promise<{ 
   await db.insert(media).values([
     { itemId, kind: "render", source: "capture", url: component.renderUrl, alt: `${name} live preview`, sortOrder: -2 },
     { itemId, kind: "image", source: "capture", url: component.posterUrl, alt: `${name} preview`, sortOrder: -1 },
-    { itemId, kind: "demo_url", source: "capture", url: library.homepage, alt: `${library.name} site`, sortOrder: 0 },
+    { itemId, kind: "demo_url", source: "capture", url: component.pageUrl, alt: `${name} on ${library.name}`, sortOrder: 0 },
   ]);
   return { slug, created: !existing };
 }
@@ -202,4 +208,16 @@ export async function extractedUrls(libraryIds: string[]): Promise<Set<string>> 
       ),
     );
   return new Set(rows.map((row) => row.url!));
+}
+
+/** Point an extracted component's "Visit site" at its own page (no rebuild needed). */
+export async function setComponentPage(itemUrl: string, pageUrl: string): Promise<boolean> {
+  const db = getDb();
+  const [item] = await db.select({ id: items.id }).from(items).where(eq(items.registryUrl, itemUrl));
+  if (!item) return false;
+  await db
+    .update(media)
+    .set({ url: pageUrl, updatedAt: new Date() })
+    .where(and(eq(media.itemId, item.id), enumEq(media.kind, "demo_url", mediaKindEnum)));
+  return true;
 }

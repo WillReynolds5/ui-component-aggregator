@@ -16,11 +16,13 @@ import { parseArgs } from "node:util";
 import { chromium, type Browser } from "playwright-core";
 import { usesDataApi } from "@/db";
 import { storeAsset } from "@/lib/catalog/capture-run";
+import { findComponentPage } from "@/lib/catalog/component-pages";
 import {
   extractedUrls,
   findLibraries,
   loadLibraryRegistry,
   removeComponent,
+  setComponentPage,
   upsertComponent,
   type LibraryRecord,
   type LibraryRegistry,
@@ -42,6 +44,8 @@ const { values: args } = parseArgs({
     name: { type: "string" },
     limit: { type: "string" },
     force: { type: "boolean", default: false },
+    // Only refresh each extracted component's "Visit site" link from the library's sitemap.
+    "links-only": { type: "boolean", default: false },
     concurrency: { type: "string", default: "2" },
   },
 });
@@ -189,6 +193,7 @@ async function extractOne(
     dependencies: [...resolved.npmDeps.keys()],
     renderUrl: `/${renderKey}`,
     posterUrl: `/${posterKey}`,
+    pageUrl: findComponentPage(source.pages, indexEntry.name) ?? library.homepage,
   });
   return {
     outcome: created ? "added" : "updated",
@@ -220,6 +225,17 @@ async function main() {
       const source = await loadLibraryRegistry(library);
       if (!source) {
         console.log(`· ${library.name}: no registry`);
+        continue;
+      }
+      if (args["links-only"]) {
+        let found = 0;
+        let updated = 0;
+        for (const entry of source.registry.entries.filter(isExtractable)) {
+          const page = findComponentPage(source.pages, entry.name);
+          if (page) found += 1;
+          if (await setComponentPage(source.registry.itemUrl(entry.name), page ?? library.homepage)) updated += 1;
+        }
+        console.log(`▸ ${library.name}: ${updated} component link(s) updated, ${found} matched a page in ${source.pages.length} sitemap URLs`);
         continue;
       }
       const done = args.force ? new Set<string>() : await extractedUrls([library.id]);
