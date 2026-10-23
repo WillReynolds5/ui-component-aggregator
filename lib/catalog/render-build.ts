@@ -302,6 +302,15 @@ new MutationObserver(() => {
 }).observe(root, { childList: true });
 addEventListener("resize", () => { fit(); place(); });
 
+// An image that fails to load (docs snippets cite placeholder paths like "/people/maya.jpg")
+// would show the browser's broken-image icon; keep its box but hide the icon.
+addEventListener("error", (event) => {
+  if (event.target instanceof HTMLImageElement) event.target.style.visibility = "hidden";
+}, true);
+addEventListener("load", (event) => {
+  if (event.target instanceof HTMLImageElement) event.target.style.visibility = "";
+}, true);
+
 function looksBlank() {
   const el = root.firstElementChild;
   if (!el) return true;
@@ -707,10 +716,10 @@ export async function buildRender(
   const layout = options.layout ?? "component";
   // Read before mirroring rewrites the files: the item page shows the library's own paths.
   const code = component.files.get(component.mainPath) ?? "";
-  if (options.mirrorAsset) await mirrorAssets(component.files, component.origin, options.mirrorAsset);
   // Same map, not a copy: fetchMore adds undeclared imports to it during the build.
   const files = component.files;
   if (options.exampleModule) files.set("__example.tsx", options.exampleModule);
+  if (options.mirrorAsset) await mirrorAssets(files, component.origin, options.mirrorAsset);
   files.set(
     "__entry.tsx",
     options.exampleModule
