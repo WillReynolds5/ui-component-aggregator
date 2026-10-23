@@ -136,7 +136,14 @@ async function main() {
   }
   const { keep, dupes } = await withoutExisting(mapped);
   if (dupes.length) console.log(`Skipping ${dupes.length} already in the catalog:`, dupes);
-  const result = await ingestMappedItems(keep);
+  // The catalog only keeps items the app renders live (a `render` media entry; see pickRender in
+  // lib/catalog/preview.ts). This importer writes metadata only, so it must not insert anything.
+  // Kobra's source is licensed and token-gated, so no live render can be built; this importer is disabled.
+  const renderable = keep.filter((item) => item.media.some((m) => (m.kind as string) === "render"));
+  const refused = keep.length - renderable.length;
+  if (refused) console.log(`Refusing ${refused} items with no live render.`);
+  if (!renderable.length) return;
+  const result = await ingestMappedItems(renderable);
   console.log(`created ${result.created}, updated ${result.updated}, skipped ${result.skipped}`);
   console.log("previews:", await requestPreviewCapture(result.itemIds));
 }
