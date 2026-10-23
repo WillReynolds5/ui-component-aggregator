@@ -10,6 +10,38 @@ import { ingestMappedItems } from "@/lib/catalog/ingest";
 import { requestPreviewCapture } from "@/lib/catalog/capture-trigger";
 import type { MappedItem } from "@/lib/catalog/mapping";
 import { validCategorySlugs } from "@/lib/catalog/taxonomy";
+import { getDb } from "@/db";
+import { items } from "@/drizzle/schema";
+
+/** Comparable form of a URL: no scheme, www, trailing slash, case, or shadcn's /radix|/base docs prefix. */
+export function normalizeUrl(url: string): string {
+  return url
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\/(www\.)?/, "")
+    .replace(/[?#].*$/, "")
+    .replace(/\/docs\/components\/(radix|base)\//, "/docs/components/")
+    .replace(/\/+$/, "");
+}
+
+/**
+ * Drop items that already exist under another URL: rows written by the live-component
+ * extractor (keyed on the registry JSON URL) or by other ingest paths (keyed on a URL variant).
+ */
+async function withoutExisting(mapped: MappedItem[]) {
+  const rows = await getDb().select({ sourceUrl: items.sourceUrl, slug: items.slug }).from(items);
+  const bySource = new Map(rows.map((row) => [normalizeUrl(row.sourceUrl), row.slug]));
+  const keep: MappedItem[] = [];
+  const dupes: string[] = [];
+  for (const item of mapped) {
+    const own = bySource.get(normalizeUrl(item.sourceUrl));
+    const other = item.sourceRegistryUrl ? bySource.get(normalizeUrl(item.sourceRegistryUrl)) : undefined;
+    if (other && other !== own) dupes.push(`${item.slugHint} (exists as ${other})`);
+    else keep.push(item);
+  }
+  return { keep, dupes };
+}
+
 
 const REGISTRY = "https://ui.shadcn.com/r";
 const STYLE = "new-york-v4";
@@ -113,7 +145,9 @@ async function main() {
     console.table(mapped.map((m) => ({ name: m.name, category: m.categorySlug, code: m.code?.length ?? 0 })));
     return;
   }
-  const result = await ingestMappedItems(mapped);
+  const { keep, dupes } = await withoutExisting(mapped);
+  if (dupes.length) console.log(`Skipping ${dupes.length} already in the catalog:`, dupes);
+  const result = await ingestMappedItems(keep);
   console.log(`created ${result.created}, updated ${result.updated}, skipped ${result.skipped}`);
   console.log("previews:", await requestPreviewCapture(result.itemIds));
 }
