@@ -37,6 +37,7 @@ export function BrowseResults({
   frameworks,
   creators = [],
   pathname = "/",
+  lockedCreator,
   eyebrow,
   heading,
   description,
@@ -50,6 +51,8 @@ export function BrowseResults({
   frameworks: string[];
   creators?: CreatorFacet[];
   pathname?: string;
+  /** The creator a creator page is about: always applied, so never shown as a removable filter. */
+  lockedCreator?: string;
   eyebrow?: ReactNode;
   heading: ReactNode;
   description?: ReactNode;
@@ -93,7 +96,10 @@ export function BrowseResults({
 
   const chips: Array<{ label: string; href: string }> = [];
   if (filters.q) chips.push({ label: `“${filters.q}”`, href: href({ ...base, q: undefined }) });
-  for (const slug of filters.creators ?? []) {
+  if (filters.library) {
+    chips.push({ label: `Library: ${filters.library}`, href: href({ ...base, library: undefined }) });
+  }
+  for (const slug of (filters.creators ?? []).filter((value) => value !== lockedCreator)) {
     const creator = creators.find((entry) => entry.slug === slug);
     chips.push({
       label: creator?.xHandle ? `@${creator.xHandle}` : (creator?.name ?? slug),
@@ -113,7 +119,8 @@ export function BrowseResults({
       filters.pricing ||
       filters.access ||
       filters.framework ||
-      filters.creators?.length ||
+      filters.library ||
+      (filters.creators ?? []).some((value) => value !== lockedCreator) ||
       filters.tags?.length,
   );
   const shown = items.length;

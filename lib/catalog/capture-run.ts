@@ -10,11 +10,11 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { and, eq, inArray, type SQL } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql, type SQL } from "drizzle-orm";
 import type { Browser } from "playwright-core";
 import { getDb } from "@/db";
 import { enumEq } from "@/db/enum";
-import { items, media, mediaSourceEnum } from "@/drizzle/schema";
+import { items, media, mediaKindEnum, mediaSourceEnum } from "@/drizzle/schema";
 import {
   captureTarget,
   HIDE_OVERLAYS_CSS,
@@ -39,23 +39,35 @@ export async function findCaptureJobs(options: {
   force?: boolean;
 }): Promise<{ jobs: CaptureJob[]; skipped: string[] }> {
   const db = getDb();
-  let where: SQL | undefined;
-  if (options.itemIds?.length) where = inArray(items.id, options.itemIds);
-  else if (options.slugs?.length) where = inArray(items.slug, options.slugs);
+  const conditions: SQL[] = [
+    // Extracted components have their own render and poster (scripts/extract-components.ts);
+    // a homepage screenshot would only replace them with the library's site.
+    isNull(items.registryUrl),
+  ];
+  if (options.itemIds?.length) conditions.push(inArray(items.id, options.itemIds));
+  else if (options.slugs?.length) conditions.push(inArray(items.slug, options.slugs));
+  if (!options.force) {
+    // Own alias and literal values: inside a relational query Drizzle would rewrite
+    // `${media.itemId}` to the outer table ("items"."item_id").
+    conditions.push(
+      sql`not exists (select 1 from media m where m.item_id = ${items.id} and m.source = 'capture' and m.kind = 'image')`,
+    );
+  }
 
+  // Filter and limit in SQL: loading every item with its media and slicing in JS would
+  // outgrow the RDS Data API's 1 MB response cap as the catalog grows.
   const rows = await db.query.items.findMany({
-    where,
+    where: and(...conditions),
     columns: { id: true, slug: true, name: true, sourceUrl: true },
-    with: { media: { columns: { kind: true, source: true, url: true } } },
+    with: { media: { columns: { kind: true, url: true } } },
     // Newest first, so a limited sweep favors what people are most likely looking at.
     orderBy: (table, { desc }) => [desc(table.discoveredAt)],
+    limit: options.limit ? options.limit * 3 : undefined,
   });
 
   const jobs: CaptureJob[] = [];
   const skipped: string[] = [];
   for (const row of rows) {
-    const captured = row.media.some((entry) => entry.source === "capture");
-    if (captured && !options.force) continue;
     const demo = row.media.find((entry) => entry.kind === "demo_url")?.url;
     const url = captureTarget(demo) ?? captureTarget(row.sourceUrl);
     if (!url) {
@@ -137,9 +149,16 @@ async function store(fileName: string, image: Buffer) {
 
 async function attach(job: CaptureJob, fileName: string) {
   const db = getDb();
+  // Replace only our previous screenshot; never other captured media (renders, demo links).
   await db
     .delete(media)
-    .where(and(eq(media.itemId, job.id), enumEq(media.source, "capture", mediaSourceEnum)));
+    .where(
+      and(
+        eq(media.itemId, job.id),
+        enumEq(media.source, "capture", mediaSourceEnum),
+        enumEq(media.kind, "image", mediaKindEnum),
+      ),
+    );
   await db.insert(media).values({
     itemId: job.id,
     kind: "image",

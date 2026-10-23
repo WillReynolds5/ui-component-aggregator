@@ -3,7 +3,7 @@
  * Building and verifying the render happens in the caller (scripts/extract-components.ts),
  * which owns the browser; this module owns the catalog side.
  */
-import { and, eq, inArray, isNotNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { getDb } from "@/db";
 import { enumEq } from "@/db/enum";
 import { categories, items, media, mediaKindEnum, mediaSourceEnum } from "@/drizzle/schema";
@@ -34,7 +34,11 @@ export type LibraryRecord = {
  */
 export async function findLibraries(onlySlugs?: string[]): Promise<LibraryRecord[]> {
   const db = getDb();
+  const [libraries] = await db.select({ id: categories.id }).from(categories).where(eq(categories.slug, "libraries"));
+  if (!libraries) return [];
+  // Only library items, filtered in SQL (all items with media would outgrow the Data API cap).
   const rows = await db.query.items.findMany({
+    where: and(eq(items.primaryCategoryId, libraries.id), isNull(items.libraryItemId)),
     columns: {
       id: true,
       slug: true,
@@ -46,7 +50,6 @@ export async function findLibraries(onlySlugs?: string[]): Promise<LibraryRecord
       discoveredAt: true,
     },
     with: {
-      primaryCategory: { columns: { slug: true } },
       media: { columns: { kind: true, url: true } },
       source: { columns: { homepage: true } },
     },
@@ -55,7 +58,6 @@ export async function findLibraries(onlySlugs?: string[]): Promise<LibraryRecord
 
   const byHost = new Map<string, LibraryRecord>();
   for (const row of rows) {
-    if (row.primaryCategory.slug !== "libraries") continue;
     if (onlySlugs?.length && !onlySlugs.includes(row.slug)) continue;
     const homepage =
       row.media.find((entry) => entry.kind === "demo_url")?.url ?? row.source.homepage ?? row.sourceUrl;
@@ -173,8 +175,8 @@ export async function upsertComponent(component: ExtractedComponent): Promise<{ 
     .delete(media)
     .where(and(eq(media.itemId, itemId), enumEq(media.source, "capture", mediaSourceEnum)));
   await db.insert(media).values([
-    { itemId, kind: "render", source: "capture", url: component.renderUrl, alt: `${name} live preview`, sortOrder: -2, width: 800, height: 600 },
-    { itemId, kind: "image", source: "capture", url: component.posterUrl, alt: `${name} preview`, sortOrder: -1, width: 800, height: 600 },
+    { itemId, kind: "render", source: "capture", url: component.renderUrl, alt: `${name} live preview`, sortOrder: -2 },
+    { itemId, kind: "image", source: "capture", url: component.posterUrl, alt: `${name} preview`, sortOrder: -1 },
     { itemId, kind: "demo_url", source: "capture", url: library.homepage, alt: `${library.name} site`, sortOrder: 0 },
   ]);
   return { slug, created: !existing };

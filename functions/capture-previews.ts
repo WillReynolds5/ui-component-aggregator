@@ -25,8 +25,11 @@ export type CaptureEvent = {
 
 type LambdaContext = { getRemainingTimeInMillis(): number };
 
-/** Stop starting new screenshots when less than this is left; one capture can take ~45s. */
-const SAFETY_MS = 60_000;
+/**
+ * Stop starting new screenshots when less than this is left. One capture can take ~90s in the
+ * worst case (30s navigation + 10s network idle + 2.5s settle + 45s screenshot) plus a launch.
+ */
+const SAFETY_MS = 100_000;
 const DEFAULT_LIMIT = 12;
 
 async function launch(): Promise<Browser> {

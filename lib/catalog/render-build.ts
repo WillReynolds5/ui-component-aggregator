@@ -8,19 +8,20 @@
  * in a sandboxed iframe: it scales the component to fit, and posts its status to the parent.
  */
 import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { compile } from "@tailwindcss/node";
 import { Scanner } from "@tailwindcss/oxide";
 import { build, type Plugin } from "esbuild";
-import reactPackage from "react/package.json";
 import {
   fetchJson,
+  isSafeRef,
   splitDependency,
   type Registry,
   type RegistryEntry,
 } from "@/lib/catalog/registry";
 
-const REACT_VERSION = reactPackage.version;
 const SHADCN_BASE = "https://ui.shadcn.com/r/styles/new-york-v4";
 const SOURCE_EXT = /\.(tsx|ts|jsx|js)$/;
 
@@ -86,6 +87,7 @@ export async function resolveComponent(
   };
 
   const visit = async (ref: string): Promise<RegistryEntry> => {
+    if (!isSafeRef(ref)) throw new Error(`Unsafe registry reference ${JSON.stringify(ref).slice(0, 80)}`);
     // "@reui/alert"-style refs name an item in the library's own (namespaced) registry.
     const local = ref.match(/^@[^/]+\/(.+)$/)?.[1];
     const url = ref.startsWith("http") ? ref : registry.itemUrl(local ?? ref);
@@ -125,7 +127,22 @@ export function cn(...inputs) { return twMerge(clsx(inputs)); }`;
 
 const EXTENSIONS = ["", ".tsx", ".ts", ".jsx", ".js", "/index.tsx", "/index.ts", "/index.jsx", "/index.js"];
 
-function virtualFiles(files: Map<string, string>, fetchMore?: (name: string) => Promise<boolean>): Plugin {
+function virtualFiles(
+  files: Map<string, string>,
+  npmDeps: Map<string, string>,
+  fetchMore?: (name: string) => Promise<boolean>,
+  trimExports = true,
+): Plugin {
+  // Computed lazily: fetchMore can add files during the build.
+  let importedCache: Map<string, string[]> | null = null;
+  const imported = {
+    get: (spec: string) => {
+      importedCache ??= namedImports(
+        [...files.entries()].filter(([file]) => SOURCE_EXT.test(file)).map(([, content]) => content),
+      );
+      return importedCache.get(spec);
+    },
+  };
   const find = (candidate: string) =>
     EXTENSIONS.map((ext) => path.posix.normalize(candidate + ext)).find((p) => files.has(p));
   // Registry paths rarely match the installed layout an import assumes ("@/components/ui/x"
@@ -152,8 +169,15 @@ function virtualFiles(files: Map<string, string>, fetchMore?: (name: string) => 
   return {
     name: "registry-files",
     setup(pluginBuild) {
-      pluginBuild.onResolve({ filter: /.*/ }, async (args) => {
-        if (args.kind === "entry-point") return { path: args.path, namespace: "reg" };
+      pluginBuild.onResolve({ filter: /^__entry\.tsx$/ }, (args) =>
+        args.kind === "entry-point" ? { path: args.path, namespace: "reg" } : undefined,
+      );
+      // Only imports made by registry code; React's own internals resolve normally from disk.
+      pluginBuild.onResolve({ filter: /.*/, namespace: "reg" }, async (args) => {
+        // CSS `url(data:…)`, `url(https://…)`: assets the browser loads as written, not modules.
+        if (/^(data:|https?:|\/\/)/i.test(args.path) || (args.kind === "url-token" && !args.path.startsWith("."))) {
+          return { path: args.path, external: true };
+        }
         if (args.path === "cn" || args.path === "@/lib/utils" || /(^|\/)lib\/utils$/.test(args.path)) {
           const hit = find("lib/utils") ?? byTail("lib/utils");
           return { path: hit ?? "__cn.ts", namespace: "reg" };
@@ -170,7 +194,7 @@ function virtualFiles(files: Map<string, string>, fetchMore?: (name: string) => 
           if (hit) return { path: hit, namespace: "reg" };
         }
         if (!args.path.startsWith(".") && !args.path.startsWith("@/")) {
-          return { path: args.path, external: true };
+          return resolvePackage(args.path, npmDeps, trimExports ? imported.get(args.path) : undefined);
         }
         return { errors: [{ text: `Cannot resolve ${args.path} from ${args.importer}` }] };
       });
@@ -201,7 +225,7 @@ export function defaultChildren(categorySlug: string): string | null {
   return labels[categorySlug] ?? null;
 }
 
-function entrySource(mainPath: string, children: string | null, componentName: string) {
+function entrySource(mainPath: string, children: string | null, componentName: string, layout: RenderLayout) {
   return `import * as React from "react";
 import { createRoot } from "react-dom/client";
 import * as M from "./${mainPath}";
@@ -234,10 +258,14 @@ else createRoot(root).render(
   React.createElement(Boundary, null, React.createElement(Component, null, ${JSON.stringify(children)}))
 );
 
+// The quick view opens renders with ?mode=full so long blocks can scroll; cards never scroll.
+if (new URLSearchParams(location.search).get("mode") === "full") document.documentElement.classList.add("full");
+
 // Scale oversized components down to fit the card; size-full components are left alone.
+// Blocks are laid out like a page (top-aligned, natural size) instead.
 function fit() {
   const el = root.firstElementChild;
-  if (!el) return;
+  if (!el || ${JSON.stringify(layout)} === "block") return;
   el.style.transform = "";
   const rect = el.getBoundingClientRect();
   const w = Math.max(el.scrollWidth, rect.width), h = Math.max(el.scrollHeight, rect.height);
@@ -259,7 +287,8 @@ function looksBlank() {
   const rect = el.getBoundingClientRect();
   if (rect.width < 4 || rect.height < 4) return true;
   if (el.innerText && el.innerText.trim()) return false;
-  if (el.querySelector("svg, canvas, img, video, input, textarea, select, button, iframe")) return false;
+  const visual = "svg, canvas, img, video, input, textarea, select, button, iframe";
+  if (el.matches(visual) || el.querySelector(visual)) return false;
   const style = getComputedStyle(el);
   return style.backgroundImage === "none" && /rgba\\(0, 0, 0, 0\\)|transparent/.test(style.backgroundColor) && style.borderStyle === "none";
 }
@@ -329,10 +358,11 @@ export function registryStylesheets(files: Map<string, string>): string {
   const byBase = new Map([...files.keys()].filter((f) => f.endsWith(".css")).map((f) => [path.posix.basename(f), f]));
   const inlined = new Set<string>();
   const inline = (file: string): string =>
-    (files.get(file) ?? "").replace(/@import\s+["']([^"']+)["'];?/g, (whole, target: string) => {
+    (files.get(file) ?? "").replace(/@import\s+["']([^"']+)["'];?/g, (_whole, target: string) => {
       if (target === "tailwindcss" || target === "tw-animate-css") return "";
       const local = byBase.get(path.posix.basename(target));
-      if (!local || inlined.has(local)) return local ? "" : whole;
+      // Anything not in memory is dropped, never left for Tailwind to read from local disk.
+      if (!local || inlined.has(local)) return "";
       inlined.add(local);
       return inline(local);
     });
@@ -349,11 +379,23 @@ export function registryStylesheets(files: Map<string, string>): string {
   return out.join("\n");
 }
 
+/**
+ * Registry CSS is untrusted. Tailwind resolves `@import`, `@plugin`, `@config`, `@source`, and
+ * `@reference` against the local filesystem of whoever runs the build, and the output is
+ * published, so `@import "/Users/me/.aws/…json"` would leak that file. Strip them all; the
+ * only imports that survive are the two this module adds itself.
+ */
+export function sanitizeRegistryCss(css: string): string {
+  return css
+    .replace(/@(import|plugin|config|source|reference)\b[^;{]*;/gi, "")
+    .replace(/@(plugin|config)\b[^{;]*\{[^}]*\}/gi, "");
+}
+
 async function tailwindCss(sources: string[], extraCss: string) {
   const scanner = new Scanner({});
   const candidates = scanner.scanFiles(sources.map((content) => ({ content, extension: "tsx" })));
   const compiler = await compile(
-    `@import "tailwindcss"; @import "tw-animate-css"; ${THEME_CSS}\n${extraCss}`,
+    `@import "tailwindcss"; @import "tw-animate-css"; ${THEME_CSS}\n${sanitizeRegistryCss(extraCss)}`,
     { base: process.cwd(), onDependency: () => {} },
   );
   return compiler.build(candidates);
@@ -382,56 +424,218 @@ function packageOf(spec: string) {
   return spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0];
 }
 
-async function importMap(specifiers: Set<string>, npmDeps: Map<string, string>) {
-  const imports: Record<string, string> = {
-    react: `https://esm.sh/react@${REACT_VERSION}`,
-    "react/jsx-runtime": `https://esm.sh/react@${REACT_VERSION}/jsx-runtime`,
-    "react-dom": `https://esm.sh/react-dom@${REACT_VERSION}?external=react`,
-    "react-dom/client": `https://esm.sh/react-dom@${REACT_VERSION}/client?external=react`,
+const projectRequire = createRequire(path.join(process.cwd(), "package.json"));
+
+/**
+ * Registry code written for Next.js imports its helpers. Bundling the real ones pulls in part
+ * of Next and points images at a `/_next/image` endpoint that doesn't exist in a render, so
+ * they're replaced with plain-DOM stand-ins.
+ */
+const NEXT_SHIMS: Record<string, string> = {
+  "next/image": `import * as React from "react";
+const Image = React.forwardRef(function Image({ src, alt = "", fill, width, height, style, priority, quality, placeholder, blurDataURL, loader, unoptimized, sizes, ...rest }, ref) {
+  const url = typeof src === "object" && src ? src.src : src;
+  const fillStyle = fill ? { position: "absolute", inset: 0, width: "100%", height: "100%" } : null;
+  return React.createElement("img", { ref, src: url, alt, width: fill ? undefined : width, height: fill ? undefined : height, sizes, loading: priority ? "eager" : "lazy", style: { ...fillStyle, ...style }, ...rest });
+});
+export default Image;`,
+  "next/link": `import * as React from "react";
+const Link = React.forwardRef(function Link({ href, prefetch, replace, scroll, shallow, locale, legacyBehavior, passHref, ...rest }, ref) {
+  const url = typeof href === "object" && href ? href.pathname ?? "#" : href;
+  return React.createElement("a", { ref, href: url, ...rest });
+});
+export default Link;`,
+  "next/navigation": `export const useRouter = () => ({ push() {}, replace() {}, back() {}, forward() {}, refresh() {}, prefetch() {} });
+export const usePathname = () => "/";
+export const useSearchParams = () => new URLSearchParams();
+export const useParams = () => ({});
+export const redirect = () => {};
+export const notFound = () => {};`,
+};
+const REACT_PACKAGES = new Set(["react", "react-dom", "scheduler"]);
+
+/**
+ * Where a bare import comes from. React (and react-dom's scheduler) is bundled from this
+ * project's node_modules, so every render has exactly one copy; everything else comes from
+ * esm.sh at a pinned version, with React left for the local copy.
+ */
+async function resolvePackage(spec: string, npmDeps: Map<string, string>, only?: string[]) {
+  if (spec in NEXT_SHIMS) return { path: spec, namespace: "next-shim" };
+  if (REACT_PACKAGES.has(packageOf(spec))) return { path: projectRequire.resolve(spec) };
+  const pkg = packageOf(spec);
+  const version = await pinVersion(pkg, npmDeps.get(pkg) ?? "");
+  // esm.sh builds a module with just these exports. Its prebuilt modules can't be tree-shaken
+  // here, so without this lucide-react alone adds every icon (~1 MB) to each render.
+  const exports = only?.length ? `&exports=${[...only].sort().join(",")}` : "";
+  return {
+    path: `https://esm.sh/${pkg}@${version}${spec.slice(pkg.length)}?external=react,react-dom&target=es2022${exports}`,
+    namespace: "esm",
   };
-  for (const spec of specifiers) {
-    if (imports[spec]) continue;
-    const pkg = packageOf(spec);
-    const version = await pinVersion(pkg, npmDeps.get(pkg) ?? "");
-    imports[spec] = `https://esm.sh/${pkg}@${version}${spec.slice(pkg.length)}?external=react,react-dom`;
+}
+
+/**
+ * Names imported per bare specifier across the registry code, when every import of it is a
+ * plain named import (`import { A, B as C } from "x"`). Default, namespace, and side-effect
+ * imports need the whole module, so those specifiers are left out.
+ */
+export function namedImports(sources: string[]): Map<string, string[]> {
+  const named = new Map<string, Set<string>>();
+  const whole = new Set<string>();
+  for (const source of sources) {
+    for (const match of source.matchAll(/import\s+(type\s+)?([^'";]*?)\s+from\s+["']([^"']+)["']/g)) {
+      const [, typeOnly, clause, spec] = match;
+      if (typeOnly || spec.startsWith(".") || spec.startsWith("@/")) continue;
+      const braces = clause.match(/^\{([^}]*)\}$/);
+      if (!braces) {
+        whole.add(spec);
+        continue;
+      }
+      const names = braces[1]
+        .split(",")
+        .map((part) => part.trim())
+        .filter((part) => part && !part.startsWith("type "))
+        .map((part) => part.split(/\s+as\s+/)[0].trim());
+      const set = named.get(spec) ?? new Set<string>();
+      names.forEach((name) => set.add(name));
+      named.set(spec, set);
+    }
+    for (const match of source.matchAll(/import\s+["']([^"']+)["']/g)) whole.add(match[1]);
   }
-  return imports;
+  return new Map([...named].filter(([spec]) => !whole.has(spec)).map(([spec, set]) => [spec, [...set]]));
+}
+
+const ESM_CACHE = path.join(process.cwd(), "node_modules", ".cache", "render-deps");
+
+/**
+ * esbuild loads every module of a bundle at once; unthrottled, one build opens hundreds of
+ * connections to esm.sh and fails ("fetch failed"). Share in-flight fetches, cap concurrency,
+ * and retry transient failures.
+ */
+const MAX_FETCHES = 8;
+let activeFetches = 0;
+const waiting: Array<() => void> = [];
+const inFlight = new Map<string, Promise<string>>();
+
+async function throttled<T>(task: () => Promise<T>): Promise<T> {
+  if (activeFetches >= MAX_FETCHES) await new Promise<void>((resume) => waiting.push(resume));
+  activeFetches += 1;
+  try {
+    return await task();
+  } finally {
+    activeFetches -= 1;
+    waiting.shift()?.();
+  }
+}
+
+async function download(url: string): Promise<string> {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+      if (res.ok) return await res.text();
+      if (res.status < 500 && res.status !== 429) throw new Error(`HTTP ${res.status} for ${url}`);
+      if (attempt >= 3) throw new Error(`HTTP ${res.status} for ${url}`);
+    } catch (error) {
+      if (attempt >= 3 || (error instanceof Error && /^HTTP 4/.test(error.message))) throw error;
+    }
+    await new Promise((resume) => setTimeout(resume, 500 * 2 ** attempt));
+  }
+}
+
+function fetchModule(url: string): Promise<string> {
+  const pending = inFlight.get(url);
+  if (pending) return pending;
+  const cached = path.join(ESM_CACHE, createHash("sha1").update(url).digest("hex"));
+  const work = readFile(cached, "utf8").catch(async () => {
+    const text = await throttled(() => download(url));
+    await mkdir(ESM_CACHE, { recursive: true });
+    await writeFile(cached, text);
+    return text;
+  });
+  inFlight.set(url, work);
+  work.catch(() => inFlight.delete(url));
+  return work;
+}
+
+/**
+ * Bundle esm.sh modules into the render at build time. Renders run in opaque-origin sandboxed
+ * iframes, which share no HTTP cache, so loading modules at view time cost each card up to
+ * hundreds of requests and megabytes; bundled, a card is one cacheable file. Modules fetched
+ * here dedupe by URL exactly as they did in the browser.
+ */
+function remoteModules(npmDeps: Map<string, string>): Plugin {
+  return {
+    name: "esm-modules",
+    setup(pluginBuild) {
+      pluginBuild.onResolve({ filter: /.*/, namespace: "esm" }, async (args) => {
+        if (/^https?:\/\//.test(args.path)) return { path: args.path, namespace: "esm" };
+        if (args.path.startsWith("/") || args.path.startsWith(".")) {
+          return { path: new URL(args.path, args.importer).toString(), namespace: "esm" };
+        }
+        return resolvePackage(args.path, npmDeps);
+      });
+      pluginBuild.onLoad({ filter: /.*/, namespace: "next-shim" }, (args) => ({
+        contents: NEXT_SHIMS[args.path],
+        loader: "js",
+        resolveDir: process.cwd(),
+      }));
+      pluginBuild.onLoad({ filter: /.*/, namespace: "esm" }, async (args) => ({
+        contents: await fetchModule(args.path),
+        loader: args.path.split("?")[0].endsWith(".css") ? "css" : "js",
+      }));
+    },
+  };
 }
 
 export type BuiltRender = { html: string; fileName: string; code: string };
 
+/**
+ * `component`: centered and scaled down to fit the card. `block` (page sections): laid out on
+ * the page like a site, top-aligned; the card shows it on a scaled 1280px canvas, and the
+ * quick view (`?mode=full`) lets it scroll.
+ */
+export type RenderLayout = "component" | "block";
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
+}
+
 export async function buildRender(
   component: ResolvedComponent,
-  options: { categorySlug: string; globalStyles?: RegistryEntry[] },
+  options: { categorySlug: string; globalStyles?: RegistryEntry[]; layout?: RenderLayout },
 ): Promise<BuiltRender> {
+  const layout = options.layout ?? "component";
   // Same map, not a copy: fetchMore adds undeclared imports to it during the build.
   const files = component.files;
   files.set(
     "__entry.tsx",
-    entrySource(component.mainPath, defaultChildren(options.categorySlug), component.entry.name),
+    entrySource(component.mainPath, defaultChildren(options.categorySlug), component.entry.name, layout),
   );
 
-  const result = await build({
-    entryPoints: ["__entry.tsx"],
-    bundle: true,
-    write: false,
-    format: "esm",
-    target: "es2022",
-    outdir: "out",
-    jsx: "automatic",
-    minify: true,
-    logLevel: "silent",
-    metafile: true,
-    plugins: [virtualFiles(files, component.fetchMore)],
+  const bundle = (trimExports: boolean) =>
+    build({
+      entryPoints: ["__entry.tsx"],
+      bundle: true,
+      write: false,
+      format: "esm",
+      target: "es2022",
+      outdir: "out",
+      jsx: "automatic",
+      minify: true,
+      logLevel: "silent",
+      define: { "process.env.NODE_ENV": '"production"' },
+      plugins: [
+        virtualFiles(files, component.npmDeps, component.fetchMore, trimExports),
+        remoteModules(component.npmDeps),
+      ],
+    });
+  // esm.sh's `exports=` trimming can't see namespace re-exports (radix-ui's `Slot`) or some
+  // aliases (lucide's `*Icon` names); when it drops a needed name, build with full modules.
+  const result = await bundle(true).catch((error: { errors?: Array<{ text: string }> }) => {
+    if (error.errors?.some((entry) => entry.text.startsWith("No matching export"))) return bundle(false);
+    throw error;
   });
   const js = result.outputFiles.find((file) => file.path.endsWith(".js"))!.text;
   const componentCss = result.outputFiles.find((file) => file.path.endsWith(".css"))?.text ?? "";
-  const specifiers = new Set(
-    Object.values(result.metafile.outputs).flatMap((output) =>
-      output.imports.filter((entry) => entry.external).map((entry) => entry.path),
-    ),
-  );
-
   const globalCss = [...(options.globalStyles ?? [])]
     .flatMap((style) => style.files ?? [])
     .filter((file) => file.path.endsWith(".css") && file.content)
@@ -444,15 +648,14 @@ export async function buildRender(
     sources,
     `${globalCss}\n${registryStylesheets(component.files)}\n${cssVarsToCss(options.globalStyles ?? [])}`,
   );
-  const imports = await importMap(specifiers, component.npmDeps);
 
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${component.entry.title ?? component.entry.name}</title>
-<script type="importmap">${JSON.stringify({ imports }).replace(/</g, "\\u003c")}</script>
+<title>${escapeHtml(component.entry.title ?? component.entry.name)}</title>
 <style>${css}</style>
 <style>html,body{margin:0;height:100%;overflow:hidden;background:var(--background);color:var(--foreground);font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
-#root{position:relative;width:100%;height:100%;display:grid;place-items:center}${componentCss}</style>
+html.full,html.full body{overflow:auto}
+${layout === "block" ? "#root{position:relative;width:100%;min-height:100%}" : "#root{position:relative;width:100%;height:100%;display:grid;place-items:center}"}${componentCss}</style>
 </head><body><div id="root"></div><script type="module">${js.replace(/<\/script/gi, "<\\/script")}</script></body></html>`;
 
   const hash = createHash("sha256").update(html).digest("hex").slice(0, 10);

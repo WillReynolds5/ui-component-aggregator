@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { defaultChildren, mainFile, registryStylesheets } from "@/lib/catalog/render-build";
+import {
+  defaultChildren,
+  mainFile,
+  namedImports,
+  registryStylesheets,
+  sanitizeRegistryCss,
+} from "@/lib/catalog/render-build";
 
 const file = (path: string) => ({ path, content: "export {}" });
 
@@ -54,5 +60,44 @@ describe("registryStylesheets", () => {
     expect(css).not.toContain(".own");
     // theme.css is inlined into globals.css, not emitted a second time.
     expect(css.match(/--color-brand/g)).toHaveLength(1);
+  });
+});
+
+describe("sanitizeRegistryCss", () => {
+  it("removes every directive that would make Tailwind read the local disk", () => {
+    const css = sanitizeRegistryCss(
+      [
+        '@import "/Users/me/.aws/sso/cache/token.json";',
+        "@import url(../../secrets.json);",
+        '@plugin "/tmp/evil.js";',
+        '@config "../tailwind.config.js";',
+        '@source "/";',
+        '@reference "./x.css";',
+        ".ok { color: red; }",
+      ].join("\n"),
+    );
+    expect(css).not.toMatch(/@(import|plugin|config|source|reference)/);
+    expect(css).toContain(".ok { color: red; }");
+  });
+
+  it("drops unresolved imports from dependency stylesheets", () => {
+    const css = registryStylesheets(new Map([["styles/globals.css", '@import "/etc/hosts.json";\nbody { margin: 0 }']]));
+    expect(css).not.toContain("@import");
+  });
+});
+
+describe("namedImports", () => {
+  it("collects named imports per package and skips packages also imported whole", () => {
+    const map = namedImports([
+      'import { ArrowUpIcon, CheckIcon as Check } from "lucide-react";\nimport { motion } from "motion/react";',
+      'import { XIcon } from "lucide-react";\nimport * as React from "react";\nimport clsx from "clsx";',
+      'import { type ClassValue } from "clsx";\nimport type { Foo } from "foo";\nimport { a } from "./local";',
+    ]);
+    expect(map.get("lucide-react")?.sort()).toEqual(["ArrowUpIcon", "CheckIcon", "XIcon"]);
+    expect(map.get("motion/react")).toEqual(["motion"]);
+    expect(map.has("react")).toBe(false);
+    expect(map.has("clsx")).toBe(false);
+    expect(map.has("foo")).toBe(false);
+    expect(map.has("./local")).toBe(false);
   });
 });

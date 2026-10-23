@@ -8,6 +8,9 @@ import { demoUrl, pickPreview, pickRender } from "@/lib/catalog/preview";
 
 const NEW_FOR_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** Page sections render on a desktop-width canvas, scaled down to the card. */
+export const BLOCK_CANVAS = 1280;
+
 export function isNew(discoveredAt: Date, now = Date.now()) {
   return now - discoveredAt.getTime() < NEW_FOR_MS;
 }
@@ -37,6 +40,7 @@ export function ItemCard({ item, priority = false }: { item: ItemCardRecord; pri
           src={render.url}
           poster={preview?.url}
           title={item.name}
+          canvas={item.kind === "block" ? BLOCK_CANVAS : undefined}
           className="aspect-[4/3] rounded-2xl transition duration-300 group-hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.25)]"
         />
       ) : (

@@ -3,6 +3,8 @@ import {
   categorizeEntry,
   displayName,
   isExtractable,
+  isSafeName,
+  isSafeRef,
   splitDependency,
 } from "@/lib/catalog/registry";
 
@@ -49,5 +51,22 @@ describe("displayName / splitDependency", () => {
     expect(splitDependency("motion@12")).toEqual(["motion", "12"]);
     expect(splitDependency("@radix-ui/react-slot")).toEqual(["@radix-ui/react-slot", ""]);
     expect(splitDependency("@base-ui/react@1.0.0")).toEqual(["@base-ui/react", "1.0.0"]);
+  });
+});
+
+describe("isSafeName / isSafeRef", () => {
+  it("accepts plain slugs and rejects traversal or shell metacharacters", () => {
+    expect(isSafeName("split-button")).toBe(true);
+    expect(isSafeName("../../x")).toBe(false);
+    expect(isSafeName("x;rm -rf ~")).toBe(false);
+    expect(isExtractable({ name: "../x", type: "registry:ui" })).toBe(false);
+  });
+
+  it("accepts names, namespaced names, and https URLs", () => {
+    expect(isSafeRef("button")).toBe(true);
+    expect(isSafeRef("@reui/alert")).toBe(true);
+    expect(isSafeRef("https://uiarc.dev/r/button.json")).toBe(true);
+    expect(isSafeRef("http://169.254.169.254/latest")).toBe(false);
+    expect(isSafeRef("@reui/../../x")).toBe(false);
   });
 });

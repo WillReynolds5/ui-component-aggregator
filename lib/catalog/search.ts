@@ -7,6 +7,8 @@ export type SearchFilters = {
   pricing?: "free" | "paid" | "freemium";
   access?: "full_code" | "install_only" | "link_only";
   categorySlug?: string;
+  /** Components extracted from this library item (its slug). */
+  library?: string;
   tags?: string[];
   creators?: string[];
   mode?: SearchMode;
@@ -50,6 +52,7 @@ export function parseSearchParams(
     pricing: asEnum(first("pricing"), ["free", "paid", "freemium"]),
     access: asEnum(first("access"), ["full_code", "install_only", "link_only"]),
     categorySlug: first("category")?.trim() || undefined,
+    library: first("library")?.trim() || undefined,
     tags: tags?.length ? tags : undefined,
     creators: creators?.length ? creators : undefined,
     mode: asEnum(mode, ["keyword", "semantic", "hybrid"]) ?? "keyword",

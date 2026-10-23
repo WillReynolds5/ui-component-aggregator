@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ItemDetail, ItemDetailSkeleton } from "@/components/item-detail";
-import { loadItem } from "@/db/item";
-import { getItemBySlug } from "@/db/queries";
+import { getItem, loadItem } from "@/db/item";
 
 type ItemPageProps = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: ItemPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = await getItemBySlug(slug);
+  const item = await getItem(slug);
   if (!item) return { title: "Not found" };
   return {
     title: item.name,

@@ -11,6 +11,11 @@ export function ItemModal({ children }: { children: ReactNode }) {
   // The intercepted URL is the item's real URL, so it doubles as the full-page link.
   const pathname = usePathname();
 
+  // On a soft navigation away (sidebar, creator link), the @modal slot keeps its last state,
+  // so close here. A null catch-all page in the slot would do it too, but under partial
+  // prefetching Next re-prefetches that empty segment in a tight loop (hundreds/second).
+  if (!pathname.startsWith("/items/")) return null;
+
   return (
     <Dialog open onOpenChange={(open) => (open ? undefined : router.back())}>
       <DialogContent

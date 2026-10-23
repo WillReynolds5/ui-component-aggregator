@@ -188,12 +188,15 @@ export function CategoryNav({
           }
 
           const containsActive = section.children.some((child) => child.slug === current);
-          const open = Boolean(needle) || containsActive || !collapsed.includes(section.slug);
+          // Held open while it holds the current page or a search match; collapsing then would
+          // do nothing visible and only save a surprise for later.
+          const forced = Boolean(needle) || containsActive;
+          const open = forced || !collapsed.includes(section.slug);
           return (
             <Collapsible
               key={section.id}
               open={open}
-              onOpenChange={(next) => toggle(section.slug, next)}
+              onOpenChange={(next) => (forced ? undefined : toggle(section.slug, next))}
             >
               <div
                 className={cn(
@@ -212,7 +215,8 @@ export function CategoryNav({
                 </Link>
                 <CollapsibleTrigger
                   aria-label={`${open ? "Collapse" : "Expand"} ${section.name}`}
-                  className="grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-background hover:text-foreground"
+                  disabled={forced}
+                  className="grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-background hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
                 >
                   <ChevronRightIcon
                     className={cn("size-3.5 transition-transform duration-150", open && "rotate-90")}

@@ -4,7 +4,7 @@ import { ArrowUpRightIcon, ChevronRightIcon, CodeIcon, TerminalIcon } from "luci
 import { CodeViewer } from "@/components/code-viewer";
 import { CopyButton } from "@/components/copy-button";
 import { CreatorAvatar } from "@/components/creator-avatar";
-import { isNew, pricingLabel } from "@/components/item-card";
+import { BLOCK_CANVAS, isNew, pricingLabel } from "@/components/item-card";
 import { ItemGrid } from "@/components/item-grid";
 import { LivePreview } from "@/components/live-preview";
 import { PreviewMedia } from "@/components/preview-media";
@@ -131,6 +131,8 @@ export function ItemDetail({ data, inModal = false }: { data: LoadedItem; inModa
             poster={preview?.url}
             title={item.name}
             eager
+            full
+            canvas={item.kind === "block" ? BLOCK_CANVAS : undefined}
             className="aspect-[16/10] rounded-2xl"
           />
           <p className="mt-2 text-center text-xs text-muted-foreground">
@@ -247,13 +249,20 @@ export function ItemDetail({ data, inModal = false }: { data: LoadedItem; inModa
         </aside>
       </div>
 
-      {components.length ? (
+      {components.total ? (
         <section className="mt-16 border-t pt-10">
           <div className="mb-6 flex items-baseline justify-between gap-3">
-            <h2 className="text-xl font-semibold tracking-tight">Components in {item.name}</h2>
-            <span className="text-sm text-muted-foreground tabular-nums">{components.length}</span>
+            <h2 className="text-xl font-semibold tracking-tight">
+              Components in {item.name}
+              <span className="ml-2 text-base font-normal text-muted-foreground tabular-nums">{components.total}</span>
+            </h2>
+            {components.total > components.items.length ? (
+              <Link href={`/?library=${item.slug}`} className="text-sm text-muted-foreground hover:text-foreground">
+                See all {components.total}
+              </Link>
+            ) : null}
           </div>
-          <ItemGrid items={components} dense />
+          <ItemGrid items={components.items} dense />
         </section>
       ) : null}
 

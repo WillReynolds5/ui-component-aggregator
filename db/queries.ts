@@ -267,6 +267,12 @@ async function catalogConditions(
     conditions.push(inArray(items.id, taggedIds));
   }
 
+  if (filters.library) {
+    const [library] = await db.select({ id: items.id }).from(items).where(eq(items.slug, filters.library));
+    if (!library) return { empty: true as const, where: undefined };
+    conditions.push(eq(items.libraryItemId, library.id));
+  }
+
   if (!options.omitCreators && filters.creators?.length) {
     const wanted = await db.query.creators.findMany({
       where: inArray(creators.slug, filters.creators),
@@ -490,24 +496,33 @@ export async function getCreatorBySlug(slug: string) {
   });
 }
 
-/** Components extracted from a library's registry, for the library's page. */
-export async function libraryComponents(libraryItemId: string, take = 60) {
+/** Components extracted from a library's registry, for the library's page, plus the total. */
+export async function libraryComponents(libraryItemId: string, take = 24) {
   const db = getDb();
-  const rows = await db.query.items.findMany({
-    where: eq(items.libraryItemId, libraryItemId),
-    columns: CARD_COLUMNS,
-    with: {
-      source: true,
-      creator: true,
-      primaryCategory: true,
-      tags: { with: { tag: true } },
-      media: { orderBy: (table, { asc }) => [asc(table.sortOrder)] },
-      library: { columns: { slug: true, name: true } },
-    },
-    orderBy: [asc(items.name)],
-    limit: take,
-  });
-  return rows.map((row) => cardFromRow(row as Parameters<typeof cardFromRow>[0]));
+  const [rows, [count]] = await Promise.all([
+    db.query.items.findMany({
+      where: eq(items.libraryItemId, libraryItemId),
+      columns: CARD_COLUMNS,
+      with: {
+        source: true,
+        creator: true,
+        primaryCategory: true,
+        tags: { with: { tag: true } },
+        media: { orderBy: (table, { asc }) => [asc(table.sortOrder)] },
+        library: { columns: { slug: true, name: true } },
+      },
+      orderBy: [asc(items.name)],
+      limit: take,
+    }),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(items)
+      .where(eq(items.libraryItemId, libraryItemId)),
+  ]);
+  return {
+    items: rows.map((row) => cardFromRow(row as Parameters<typeof cardFromRow>[0])),
+    total: count?.count ?? 0,
+  };
 }
 
 export async function relatedItems(itemId: string, categoryId: string, take = 6) {

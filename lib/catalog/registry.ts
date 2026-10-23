@@ -87,7 +87,29 @@ const RENDERABLE = new Set(["registry:ui", "registry:component", "registry:block
  * Whether an index entry is a component worth its own card. Skips hooks, utilities, token
  * files, and icon sets (animate-ui ships 773 icons; one card each would bury everything).
  */
+/**
+ * Registry names end up in file paths, URLs, and a copy-paste shell command, so only plain
+ * slugs are accepted ("../../x" or "x; rm -rf ~" are skipped).
+ */
+export function isSafeName(name: string): boolean {
+  return /^[a-z0-9][a-z0-9._-]*$/i.test(name) && !name.includes("..");
+}
+
+/** A registryDependencies ref: a plain name, "@namespace/name", or an https URL. */
+export function isSafeRef(ref: string): boolean {
+  if (/^https:\/\//.test(ref)) {
+    try {
+      return new URL(ref).protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+  const local = ref.match(/^@[a-z0-9-]+\/(.+)$/i)?.[1];
+  return isSafeName(local ?? ref);
+}
+
 export function isExtractable(entry: RegistryEntry): boolean {
+  if (!isSafeName(entry.name)) return false;
   if (!entry.type || !RENDERABLE.has(entry.type)) return false;
   if (/^icons?-/.test(entry.name)) return false;
   return true;

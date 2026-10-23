@@ -55,6 +55,7 @@ async function CreatorBrowse({ params, searchParams }: CreatorPageProps) {
       frameworks={frameworks}
       creators={[]}
       pathname={`/creators/${slug}`}
+      lockedCreator={slug}
       eyebrow="Creator"
       heading={
         <span className="flex items-center gap-4">
