@@ -230,7 +230,12 @@ async function main() {
       if (args["links-only"]) {
         let found = 0;
         let updated = 0;
-        for (const entry of source.registry.entries.filter(isExtractable)) {
+        // Only components that were actually extracted (reui alone lists ~1,900 paid blocks).
+        const extracted = await extractedUrls([library.id]);
+        const entries = source.registry.entries.filter(
+          (entry) => isExtractable(entry) && extracted.has(source.registry.itemUrl(entry.name)),
+        );
+        for (const entry of entries) {
           const page = findComponentPage(source.pages, entry.name);
           if (page) found += 1;
           if (await setComponentPage(source.registry.itemUrl(entry.name), page ?? library.homepage)) updated += 1;
