@@ -10,12 +10,15 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 text-center">
-      <p className="text-sm font-medium">Something went wrong</p>
+    <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-4 text-center">
+      <h1 className="text-2xl font-semibold tracking-tight">Something went wrong</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        {error.message || "The catalog could not load. Check that Postgres is running."}
+        The catalog couldn’t load this page. Try again in a moment.
       </p>
-      <Button className="mt-4" onClick={reset}>
+      {error.digest ? (
+        <p className="mt-2 font-mono text-xs text-muted-foreground">Error {error.digest}</p>
+      ) : null}
+      <Button className="mt-6 rounded-full px-4" size="lg" onClick={reset}>
         Try again
       </Button>
     </div>

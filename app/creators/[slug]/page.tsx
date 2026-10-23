@@ -1,31 +1,28 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { BrowseSkeleton } from "@/components/browse-skeleton";
+import { ArrowUpRightIcon } from "lucide-react";
 import { BrowseResults } from "@/components/browse-results";
-import { CatalogShell } from "@/components/catalog-shell";
+import { BrowseSkeleton } from "@/components/browse-skeleton";
+import { CreatorAvatar } from "@/components/creator-avatar";
 import { loadBrowse } from "@/db/browse";
 import { getCreatorBySlug } from "@/db/queries";
 import { parseSearchParams } from "@/lib/catalog/search";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const creator = await getCreatorBySlug(slug);
-  if (!creator) return { title: "Creator" };
-  return {
-    title: creator.name,
-    description: `Components and blocks by ${creator.name}.`,
-  };
-}
 
 type CreatorPageProps = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({ params }: CreatorPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const creator = await getCreatorBySlug(slug);
+  if (!creator) return { title: "Creator" };
+  return {
+    title: creator.name,
+    description: `Components, blocks, and libraries by ${creator.name}.`,
+  };
+}
 
 export default function CreatorPage({ params, searchParams }: CreatorPageProps) {
   return (
@@ -40,47 +37,51 @@ async function CreatorBrowse({ params, searchParams }: CreatorPageProps) {
   const creator = await getCreatorBySlug(slug);
   if (!creator) notFound();
 
-  const filters = parseSearchParams({
-    ...query,
-    creator: slug,
-  });
-  const { categories, tags, frameworks, results } = await loadBrowse(filters);
+  const filters = parseSearchParams({ ...query, creator: slug });
+  const { tags, frameworks, results } = await loadBrowse(filters);
+  const links = [
+    creator.xHandle ? { label: `@${creator.xHandle}`, href: `https://x.com/${creator.xHandle}` } : null,
+    creator.website
+      ? { label: creator.website.replace(/^https?:\/\//, "").replace(/\/$/, ""), href: creator.website }
+      : null,
+  ].filter((link): link is { label: string; href: string } => link !== null);
 
   return (
-    <CatalogShell categories={categories} filters={filters}>
-      <div className="mb-6 space-y-1">
-        <p className="text-xs text-muted-foreground">Creator</p>
-        <h1 className="text-2xl font-medium tracking-tight">{creator.name}</h1>
-        <p className="text-sm text-muted-foreground">
-          {creator.xHandle ? (
-            <a
-              href={`https://x.com/${creator.xHandle}`}
-              className="hover:underline"
-            >
-              @{creator.xHandle}
-            </a>
-          ) : null}
-          {creator.xHandle && creator.website ? (
-            <span className="mx-1.5">·</span>
-          ) : null}
-          {creator.website ? (
-            <a href={creator.website} className="hover:underline">
-              {creator.website.replace(/^https?:\/\//, "")}
-            </a>
-          ) : null}
-        </p>
-      </div>
-      <BrowseResults
-        filters={filters}
-        items={results.items}
-        total={results.total}
-        tags={tags}
-        frameworks={frameworks}
-        creators={[]}
-        pathname={`/creators/${slug}`}
-        heading={`${results.total} ${results.total === 1 ? "item" : "items"}`}
-        modeUsed={results.modeUsed}
-      />
-    </CatalogShell>
+    <BrowseResults
+      filters={filters}
+      items={results.items}
+      total={results.total}
+      tags={tags}
+      frameworks={frameworks}
+      creators={[]}
+      pathname={`/creators/${slug}`}
+      lockedCreator={slug}
+      eyebrow="Creator"
+      heading={
+        <span className="flex items-center gap-4">
+          <CreatorAvatar name={creator.name} size="lg" />
+          {creator.name}
+        </span>
+      }
+      description={
+        links.length ? (
+          <span className="flex flex-wrap gap-2">
+            {links.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-[13px] text-foreground hover:bg-muted/70"
+              >
+                {link.label}
+                <ArrowUpRightIcon className="size-3.5 text-muted-foreground" />
+              </a>
+            ))}
+          </span>
+        ) : undefined
+      }
+      modeUsed={results.modeUsed}
+    />
   );
 }

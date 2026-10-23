@@ -1,4 +1,4 @@
-import type { SearchFilters } from "@/lib/catalog/search";
+import { DEFAULT_LIMIT, type SearchFilters } from "@/lib/catalog/search";
 
 export function filtersToParams(filters: SearchFilters): URLSearchParams {
   const params = new URLSearchParams();
@@ -8,9 +8,12 @@ export function filtersToParams(filters: SearchFilters): URLSearchParams {
   if (filters.pricing) params.set("pricing", filters.pricing);
   if (filters.access) params.set("access", filters.access);
   if (filters.categorySlug) params.set("category", filters.categorySlug);
+  if (filters.library) params.set("library", filters.library);
   if (filters.tags?.length) params.set("tag", filters.tags.join(","));
   if (filters.creators?.length) params.set("creator", filters.creators.join(","));
   if (filters.mode && filters.mode !== "keyword") params.set("mode", filters.mode);
+  if (filters.limit && filters.limit !== DEFAULT_LIMIT) params.set("limit", String(filters.limit));
+  if (filters.offset) params.set("offset", String(filters.offset));
   return params;
 }
 

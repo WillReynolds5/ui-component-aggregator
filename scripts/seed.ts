@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { categories, items, variants } from "@/drizzle/schema";
 import { getDb, usesDataApi } from "@/db";
 import { ingestScrapeRecords, linkParts } from "@/lib/catalog/ingest";
@@ -95,6 +95,20 @@ async function main() {
     )
   `);
   console.log("Removed unused creators after remap.");
+
+  const removed = await db
+    .delete(categories)
+    .where(
+      and(
+        notInArray(
+          categories.slug,
+          flattenTaxonomy().map((row) => row.slug),
+        ),
+        sql`${categories.id} not in (select primary_category_id from items)`,
+      ),
+    )
+    .returning({ slug: categories.slug });
+  console.log("Removed categories no longer in the taxonomy: %s", removed.map((row) => row.slug).join(", ") || "none");
   console.log("Seed complete.");
 }
 
