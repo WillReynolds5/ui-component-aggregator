@@ -34,6 +34,8 @@ export type ResolvedComponent = {
   mainPath: string;
   /** Fetch another registry item into `files` (for imports its dependencies didn't declare). */
   fetchMore: (name: string) => Promise<boolean>;
+  /** The library site the registry lives on; root-relative demo assets come from here. */
+  origin: string;
 };
 
 function normalizePath(file: string) {
@@ -118,7 +120,14 @@ export async function resolveComponent(
       return false;
     }
   };
-  return { entry, files, npmDeps, mainPath: normalizePath(main.path), fetchMore };
+  return {
+    entry,
+    files,
+    npmDeps,
+    mainPath: normalizePath(main.path),
+    fetchMore,
+    origin: new URL(registry.indexUrl).origin,
+  };
 }
 
 const CN_SOURCE = `import { clsx } from "clsx";
@@ -541,6 +550,75 @@ async function download(url: string): Promise<string> {
   }
 }
 
+/** Root-relative asset paths written as literals in code or CSS: "/media/people/a.jpg". */
+const ASSET_LITERAL =
+  /(["'`(])\/((?:[\w.@-]+\/)*[\w.@-]+\.(?:png|jpe?g|gif|webp|avif|svg|ico|mp4|webm|mov|mp3|wav|ogg|m4a|woff2?|ttf|otf|json|lottie))(?=["'`)?#])/gi;
+
+export function assetLiterals(sources: string[]): string[] {
+  const found = new Set<string>();
+  for (const source of sources) {
+    for (const match of source.matchAll(ASSET_LITERAL)) found.add(`/${match[2]}`);
+  }
+  return [...found];
+}
+
+const ASSET_CACHE = path.join(process.cwd(), "node_modules", ".cache", "render-assets");
+const MAX_ASSET_BYTES = 5 * 1024 * 1024;
+
+async function downloadAsset(url: string): Promise<{ body: Buffer; type: string } | null> {
+  const key = path.join(ASSET_CACHE, createHash("sha1").update(url).digest("hex"));
+  try {
+    const [body, type] = await Promise.all([readFile(key), readFile(`${key}.type`, "utf8")]);
+    return { body, type };
+  } catch {
+    // Not cached yet.
+  }
+  return throttled(async () => {
+    const res = await fetch(url, {
+      headers: { "user-agent": "ui-component-aggregator (demo asset mirror)" },
+      signal: AbortSignal.timeout(30_000),
+    }).catch(() => null);
+    const type = res?.headers.get("content-type")?.split(";")[0].trim() ?? "";
+    // A 200 HTML page is a site's not-found page, not the asset.
+    if (!res?.ok || !type || type === "text/html") return null;
+    const body = Buffer.from(await res.arrayBuffer());
+    if (body.byteLength > MAX_ASSET_BYTES) return null;
+    await mkdir(ASSET_CACHE, { recursive: true });
+    await writeFile(key, body);
+    await writeFile(`${key}.type`, type);
+    return { body, type };
+  });
+}
+
+/** Stores a mirrored asset and returns the URL the render should use instead. */
+export type MirrorAsset = (sourcePath: string, body: Buffer, contentType: string) => Promise<string>;
+
+/**
+ * Demo code points at the library site's own files ("/media/photos/x.jpg"). Served from our
+ * domain those 404, so copy each one once from the library and rewrite the reference. Paths
+ * built at runtime (`/media/${id}.jpg`) can't be found this way and stay as they are.
+ */
+async function mirrorAssets(files: Map<string, string>, origin: string, mirror: MirrorAsset) {
+  const paths = assetLiterals([...files.values()]);
+  const replacements = new Map<string, string>();
+  await Promise.all(
+    paths.map(async (assetPath) => {
+      const asset = await downloadAsset(`${origin}${assetPath}`);
+      if (asset) replacements.set(assetPath, await mirror(assetPath, asset.body, asset.type));
+    }),
+  );
+  if (!replacements.size) return;
+  for (const [file, content] of files) {
+    files.set(
+      file,
+      content.replace(ASSET_LITERAL, (whole, open: string, rest: string) => {
+        const target = replacements.get(`/${rest}`);
+        return target ? `${open}${target}` : whole;
+      }),
+    );
+  }
+}
+
 function fetchModule(url: string): Promise<string> {
   const pending = inFlight.get(url);
   if (pending) return pending;
@@ -601,9 +679,17 @@ function escapeHtml(value: string) {
 
 export async function buildRender(
   component: ResolvedComponent,
-  options: { categorySlug: string; globalStyles?: RegistryEntry[]; layout?: RenderLayout },
+  options: {
+    categorySlug: string;
+    globalStyles?: RegistryEntry[];
+    layout?: RenderLayout;
+    mirrorAsset?: MirrorAsset;
+  },
 ): Promise<BuiltRender> {
   const layout = options.layout ?? "component";
+  // Read before mirroring rewrites the files: the item page shows the library's own paths.
+  const code = component.files.get(component.mainPath) ?? "";
+  if (options.mirrorAsset) await mirrorAssets(component.files, component.origin, options.mirrorAsset);
   // Same map, not a copy: fetchMore adds undeclared imports to it during the build.
   const files = component.files;
   files.set(
@@ -662,6 +748,6 @@ ${layout === "block" ? "#root{position:relative;width:100%;min-height:100%}" : "
   return {
     html,
     fileName: `${component.entry.name}-${hash}.html`,
-    code: component.files.get(component.mainPath) ?? "",
+    code,
   };
 }

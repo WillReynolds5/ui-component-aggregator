@@ -12,7 +12,12 @@ const nextConfig: NextConfig = {
         // Live component renders are third-party code. Force them into a sandbox (opaque
         // origin) even when opened directly; CloudFront sets the same header in production.
         source: "/renders/:path*",
-        headers: [{ key: "Content-Security-Policy", value: RENDER_CSP }],
+        headers: [
+          { key: "Content-Security-Policy", value: RENDER_CSP },
+          // Renders run in an opaque origin, so their fetch()es and @font-faces of mirrored
+          // demo assets are cross-origin. These are public static files.
+          { key: "Access-Control-Allow-Origin", value: "*" },
+        ],
       },
     ];
   },

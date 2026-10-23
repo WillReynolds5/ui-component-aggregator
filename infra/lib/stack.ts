@@ -232,6 +232,15 @@ export class ComponentLibraryStack extends cdk.Stack {
         },
         contentTypeOptions: { override: true },
       },
+      // Renders run in an opaque origin, so their fetch()es and @font-faces of mirrored demo
+      // assets are cross-origin. These are public static files.
+      corsBehavior: {
+        accessControlAllowCredentials: false,
+        accessControlAllowHeaders: ["*"],
+        accessControlAllowMethods: ["GET", "HEAD"],
+        accessControlAllowOrigins: ["*"],
+        originOverride: true,
+      },
     });
 
     const distribution = new cloudfront.Distribution(this, "Cdn", {

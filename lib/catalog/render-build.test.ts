@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  assetLiterals,
   defaultChildren,
   mainFile,
   namedImports,
@@ -99,5 +100,16 @@ describe("namedImports", () => {
     expect(map.has("clsx")).toBe(false);
     expect(map.has("foo")).toBe(false);
     expect(map.has("./local")).toBe(false);
+  });
+});
+
+describe("assetLiterals", () => {
+  it("finds root-relative asset paths in code and CSS, not routes or runtime-built paths", () => {
+    const found = assetLiterals([
+      '<img src="/media/people/sofia-ramirez.jpg" /><img src={"/block-logos/vercel.svg"} />',
+      ".hero { background: url(/media/photos/room.jpg?v=2); }",
+      'const href = "/components/button"; const audio = `/sounds/taxi/${name}.wav`;',
+    ]);
+    expect(found.sort()).toEqual(["/block-logos/vercel.svg", "/media/people/sofia-ramirez.jpg", "/media/photos/room.jpg"]);
   });
 });

@@ -12,6 +12,7 @@
  */
 import "dotenv/config";
 import { createHash } from "node:crypto";
+import path from "node:path";
 import { parseArgs } from "node:util";
 import { chromium, type Browser } from "playwright-core";
 import { usesDataApi } from "@/db";
@@ -166,7 +167,18 @@ async function extractOne(
   try {
     demo = await findDemo(source.registry, indexEntry.name);
     resolved = await resolveComponent(source.registry, demo ?? indexEntry.name, []);
-    built = await buildRender(resolved, { categorySlug, globalStyles: source.globalStyles, layout });
+    built = await buildRender(resolved, {
+      categorySlug,
+      globalStyles: source.globalStyles,
+      layout,
+      // Content-hashed under the library's render folder; served with the renders' headers.
+      mirrorAsset: async (assetPath, body, contentType) => {
+        const hash = createHash("sha256").update(body).digest("hex").slice(0, 10);
+        const key = `renders/${library.slug}/assets/${hash}-${path.posix.basename(assetPath)}`;
+        await storeAsset(key, body, contentType);
+        return `/${key}`;
+      },
+    });
   } catch (error) {
     if (error instanceof RateLimitedError) throw error;
     return { outcome: "build-failed", detail: message(error) };
