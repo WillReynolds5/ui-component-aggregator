@@ -88,3 +88,23 @@ describe("repoUrlFromCodePath", () => {
     );
   });
 });
+
+describe("shadcn install command", () => {
+  const base = {
+    component_name: "Split Button",
+    type: "component",
+    category: "Buttons",
+    extraction_status: "full code (shadcn registry)",
+    demo_url: "https://uiarc.dev/components/split-button",
+  };
+
+  it("uses a registry item URL from links, never the docs page", () => {
+    const mapped = mapScrapeRecord({ ...base, links: ["https://uiarc.dev/r/split-button.json"] });
+    expect(mapped.installCommand).toBe("npx shadcn@latest add https://uiarc.dev/r/split-button.json");
+    expect(mapped.sourceUrl).toBe("https://uiarc.dev/components/split-button");
+  });
+
+  it("leaves the command out when no registry item URL is known", () => {
+    expect(mapScrapeRecord(base).installCommand).toBeNull();
+  });
+});

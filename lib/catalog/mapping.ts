@@ -150,6 +150,13 @@ function firstHttpUrl(values: Array<string | null | undefined>): string | null {
   return null;
 }
 
+/** The first URL that is a shadcn registry item ("https://site/r/button.json"), if any. */
+export function registryItem(urls: Array<string | null | undefined>): string | null {
+  return (
+    urls.find((url): url is string => Boolean(url && /^https:\/\/[^\s]+\/r\/[a-z0-9._/-]+\.json$/i.test(url))) ?? null
+  );
+}
+
 export function hostLabel(url: string | null | undefined): string | null {
   if (!url) return null;
   try {
@@ -206,9 +213,13 @@ export function mapScrapeRecord(record: ScrapeRecord): MappedItem {
     .filter(Boolean)
     .join("\n\n");
 
+  // `shadcn add` needs a registry item (".../r/<name>.json"), not a docs or demo page.
+  const registryItemUrl = registryItem([demo, ...links]);
   const installCommand =
-    inferred.installCommand === "npx shadcn@latest add" && demo
-      ? `npx shadcn@latest add ${demo}`
+    inferred.installCommand === "npx shadcn@latest add"
+      ? registryItemUrl
+        ? `npx shadcn@latest add ${registryItemUrl}`
+        : null
       : inferred.installCommand;
 
   return {
@@ -229,7 +240,7 @@ export function mapScrapeRecord(record: ScrapeRecord): MappedItem {
     sourceName,
     sourceHomepage,
     sourceRepoUrl: repoUrl,
-    sourceRegistryUrl: inferred.access === "install_only" ? demo : null,
+    sourceRegistryUrl: registryItemUrl,
     creatorName: creator.name,
     creatorSlug: creator.slug,
     creatorHandle: creator.xHandle,
