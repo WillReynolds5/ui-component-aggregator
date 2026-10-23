@@ -36,7 +36,16 @@ import {
   type Registry,
   type RegistryEntry,
 } from "@/lib/catalog/registry";
-import { buildRender, mainFile, resolveComponent, type RenderLayout } from "@/lib/catalog/render-build";
+import {
+  buildRender,
+  mainFile,
+  resolveComponent,
+  type BuiltRender,
+  type MirrorAsset,
+  type RenderLayout,
+  type ResolvedComponent,
+} from "@/lib/catalog/render-build";
+import { exportedComponents, findUsageExample } from "@/lib/catalog/usage-examples";
 import { looksEmpty, looksUnfed } from "@/lib/catalog/render-visual";
 
 const { values: args } = parseArgs({
@@ -159,42 +168,69 @@ async function extractOne(
     return { outcome: "build-failed", detail: message(error) };
   }
 
-  let built;
-  let resolved;
-  let demo: string | null;
   const categorySlug = categorizeEntry({ ...indexEntry, ...entry });
   const layout: RenderLayout = entry.type === "registry:block" ? "block" : "component";
-  try {
-    demo = await findDemo(source.registry, indexEntry.name);
-    resolved = await resolveComponent(source.registry, demo ?? indexEntry.name, []);
-    built = await buildRender(resolved, {
+  const pageUrl = findComponentPage(source.pages, indexEntry.name);
+  const mirrorAsset: MirrorAsset = async (assetPath, body, contentType) => {
+    // Content-hashed under the library's render folder; served with the renders' headers.
+    const hash = createHash("sha256").update(body).digest("hex").slice(0, 10);
+    const key = `renders/${library.slug}/assets/${hash}-${path.posix.basename(assetPath)}`;
+    await storeAsset(key, body, contentType);
+    return `/${key}`;
+  };
+
+  // What to render, best first. A bare component has no props or content (an empty Alert, a
+  // toggle with no state); the library's own showcase is a small composition, so prefer it:
+  // a published demo item, then the usage example from the component's docs markdown.
+  const demo = await findDemo(source.registry, indexEntry.name);
+  const candidates: Array<{ label: string; build: () => Promise<{ built: BuiltRender; resolved: ResolvedComponent }> }> = [];
+  const build = async (name: string, exampleModule?: string) => {
+    const resolved = await resolveComponent(source.registry, name, []);
+    const built = await buildRender(resolved, {
       categorySlug,
       globalStyles: source.globalStyles,
       layout,
-      // Content-hashed under the library's render folder; served with the renders' headers.
-      mirrorAsset: async (assetPath, body, contentType) => {
-        const hash = createHash("sha256").update(body).digest("hex").slice(0, 10);
-        const key = `renders/${library.slug}/assets/${hash}-${path.posix.basename(assetPath)}`;
-        await storeAsset(key, body, contentType);
-        return `/${key}`;
-      },
+      mirrorAsset,
+      exampleModule,
     });
-  } catch (error) {
-    if (error instanceof RateLimitedError) throw error;
-    return { outcome: "build-failed", detail: message(error) };
-  }
-  const verified = await verify(browser, built.html, layout);
-  if (!verified.ok || !verified.poster) {
-    if (!verified.deterministic) return { outcome: "transient", detail: `kept existing: ${verified.reason}` };
-    await removeComponent(itemUrl);
-    return { outcome: verified.reason === "blank" ? "blank" : "error", detail: verified.reason };
-  }
+    return { built, resolved };
+  };
+  if (demo) candidates.push({ label: `demo: ${demo}`, build: () => build(demo) });
+  const example = await findUsageExample(pageUrl, exportedComponents(mainFile(entry)?.content ?? ""));
+  if (example) candidates.push({ label: "docs usage example", build: () => build(indexEntry.name, example) });
+  candidates.push({ label: "bare component", build: () => build(indexEntry.name) });
 
-  const posterHash = createHash("sha256").update(verified.poster).digest("hex").slice(0, 10);
+  let chosen: { built: BuiltRender; resolved: ResolvedComponent; verified: Verified; label: string } | null = null;
+  let lastFailure: { outcome: Outcome; detail?: string } = { outcome: "build-failed" };
+  for (const candidate of candidates) {
+    let result;
+    try {
+      result = await candidate.build();
+    } catch (error) {
+      if (error instanceof RateLimitedError) throw error;
+      lastFailure = { outcome: "build-failed", detail: `${candidate.label}: ${message(error)}` };
+      continue;
+    }
+    const verified = await verify(browser, result.built.html, layout);
+    if (verified.ok && verified.poster) {
+      chosen = { ...result, verified, label: candidate.label };
+      break;
+    }
+    // Timeouts and CDN errors say nothing about the candidate; keep what's there and stop.
+    if (!verified.deterministic) return { outcome: "transient", detail: `kept existing: ${verified.reason}` };
+    lastFailure = { outcome: verified.reason === "blank" ? "blank" : "error", detail: `${candidate.label}: ${verified.reason}` };
+  }
+  if (!chosen) {
+    if (lastFailure.outcome !== "build-failed") await removeComponent(itemUrl);
+    return lastFailure;
+  }
+  const { built, resolved, verified } = chosen;
+
+  const posterHash = createHash("sha256").update(verified.poster!).digest("hex").slice(0, 10);
   const renderKey = `renders/${library.slug}/${built.fileName}`;
   const posterKey = `previews/components/${library.slug}/${indexEntry.name}-${posterHash}.jpg`;
   await storeAsset(renderKey, built.html, "text/html; charset=utf-8");
-  await storeAsset(posterKey, verified.poster, "image/jpeg");
+  await storeAsset(posterKey, verified.poster!, "image/jpeg");
   const { created, slug } = await upsertComponent({
     library,
     entry,
@@ -205,12 +241,9 @@ async function extractOne(
     dependencies: [...resolved.npmDeps.keys()],
     renderUrl: `/${renderKey}`,
     posterUrl: `/${posterKey}`,
-    pageUrl: findComponentPage(source.pages, indexEntry.name) ?? library.homepage,
+    pageUrl: pageUrl ?? library.homepage,
   });
-  return {
-    outcome: created ? "added" : "updated",
-    detail: `${slug} → ${categorySlug}${demo ? ` (demo: ${demo})` : ""}`,
-  };
+  return { outcome: created ? "added" : "updated", detail: `${slug} → ${categorySlug} (${chosen.label})` };
 }
 
 async function main() {

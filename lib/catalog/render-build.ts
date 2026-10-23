@@ -281,14 +281,26 @@ function fit() {
   const scale = Math.min(1, (innerWidth - 24) / w, (innerHeight - 24) / h);
   if (scale < 1 && scale > 0) { el.style.transformOrigin = "center"; el.style.transform = "scale(" + scale + ")"; }
 }
+// Blocks are laid out like a page, but one narrower or shorter than the canvas (a sign-in
+// card, a newsletter box) would sit in the top-left corner: center it. Full-width sections
+// keep stretching (auto-width children stretch in a flex column).
+function place() {
+  const el = root.firstElementChild;
+  if (!el || ${JSON.stringify(layout)} !== "block") return;
+  root.style.display = "flex";
+  root.style.flexDirection = "column";
+  el.style.marginInline = el.getBoundingClientRect().width < root.clientWidth - 1 ? "auto" : "";
+  root.style.justifyContent = el.scrollHeight < innerHeight - 1 ? "center" : "flex-start";
+}
+
 // Refit whenever the component itself changes size (content loading in, accordions opening).
 // The transform doesn't change its layout size, so this can't loop.
-const sizeWatch = new ResizeObserver(fit);
+const sizeWatch = new ResizeObserver(() => { fit(); place(); });
 sizeWatch.observe(root);
 new MutationObserver(() => {
   if (root.firstElementChild) sizeWatch.observe(root.firstElementChild);
 }).observe(root, { childList: true });
-addEventListener("resize", fit);
+addEventListener("resize", () => { fit(); place(); });
 
 function looksBlank() {
   const el = root.firstElementChild;
@@ -304,6 +316,7 @@ function looksBlank() {
 
 setTimeout(() => {
   fit();
+  place();
   if (!window.__renderStatus) report({ ok: !looksBlank(), blank: looksBlank() });
 }, 1200);
 `;
@@ -684,6 +697,11 @@ export async function buildRender(
     globalStyles?: RegistryEntry[];
     layout?: RenderLayout;
     mirrorAsset?: MirrorAsset;
+    /**
+     * Render this module instead of the bare component: the author's usage example (see
+     * lib/catalog/usage-examples.ts). It imports the component like an app would.
+     */
+    exampleModule?: string;
   },
 ): Promise<BuiltRender> {
   const layout = options.layout ?? "component";
@@ -692,9 +710,12 @@ export async function buildRender(
   if (options.mirrorAsset) await mirrorAssets(component.files, component.origin, options.mirrorAsset);
   // Same map, not a copy: fetchMore adds undeclared imports to it during the build.
   const files = component.files;
+  if (options.exampleModule) files.set("__example.tsx", options.exampleModule);
   files.set(
     "__entry.tsx",
-    entrySource(component.mainPath, defaultChildren(options.categorySlug), component.entry.name, layout),
+    options.exampleModule
+      ? entrySource("__example.tsx", null, "usage example", layout)
+      : entrySource(component.mainPath, defaultChildren(options.categorySlug), component.entry.name, layout),
   );
 
   const bundle = (trimExports: boolean) =>
