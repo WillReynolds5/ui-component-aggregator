@@ -7,8 +7,11 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as events from "aws-cdk-lib/aws-events";
+import * as targets from "aws-cdk-lib/aws-events-targets";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as logs from "aws-cdk-lib/aws-logs";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as s3 from "aws-cdk-lib/aws-s3";
@@ -27,7 +30,8 @@ import {
  * Edge: CloudFront. ACM cert is imported (must already exist in us-east-1).
  * DNS: not created here — output the CloudFront domain and alias it from the Mac.
  * DB: Aurora PostgreSQL 16 Serverless v2, min 0 / max 1 ACU, Data API, no NAT.
- * Static: S3 origin for /_next/static/* and public files.
+ * Static: S3 origin for /_next/static/*, public files, and /previews/* screenshots.
+ * Previews: a capture function screenshots new items, invoked by ingest and swept daily.
  */
 export class ComponentLibraryStack extends cdk.Stack {
   get availabilityZones(): string[] {
@@ -132,6 +136,63 @@ export class ComponentLibraryStack extends cdk.Stack {
       }),
     );
 
+    // Preview screenshots. x86_64 because @sparticuz/chromium's npm build is x64-only; the
+    // app stays arm64. Triggered by ingest (DB already awake) plus one daily sweep: a
+    // frequent schedule would keep waking Aurora from 0 ACU, which costs more than the job.
+    const root = path.join(__dirname, "../..");
+    const captureLogs = new logs.LogGroup(this, "CaptureLogs", {
+      retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+    const capture = new nodejs.NodejsFunction(this, "CapturePreviews", {
+      entry: path.join(root, "functions/capture-previews.ts"),
+      handler: "handler",
+      runtime: lambda.Runtime.NODEJS_22_X,
+      architecture: lambda.Architecture.X86_64,
+      // Peaked at ~1.9 GB of 2 GB during the first backfill; more memory also means more CPU.
+      memorySize: 3008,
+      timeout: cdk.Duration.minutes(5),
+      retryAttempts: 1,
+      projectRoot: root,
+      depsLockFilePath: path.join(root, "package-lock.json"),
+      bundling: {
+        tsconfig: path.join(root, "tsconfig.json"),
+        target: "node22",
+        minify: true,
+        // @sparticuz/chromium is ESM-only, so the bundle must be ESM too (a CJS bundle dies on
+        // require() at init). The banner gives bundled CJS dependencies a working require().
+        format: nodejs.OutputFormat.ESM,
+        mainFields: ["module", "main"],
+        banner:
+          "import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);",
+        // Chromium ships as brotli files beside its JS, so it can't be bundled; install it.
+        nodeModules: ["@sparticuz/chromium", "playwright-core"],
+      },
+      environment: {
+        AURORA_CLUSTER_ARN: cluster.clusterArn,
+        AURORA_SECRET_ARN: cluster.secret?.secretArn ?? "",
+        AURORA_DATABASE: DATABASE_NAME,
+        PREVIEWS_BUCKET: assets.bucketName,
+      },
+      logGroup: captureLogs,
+    });
+    cluster.grantDataApiAccess(capture);
+    cluster.secret?.grantRead(capture);
+    assets.grantPut(capture, "previews/*");
+    capture.grantInvoke(fn);
+    fn.addEnvironment("CAPTURE_FUNCTION_NAME", capture.functionName);
+
+    new events.Rule(this, "CaptureDailySweep", {
+      description: "Retry preview screenshots that failed or were missed",
+      schedule: events.Schedule.cron({ minute: "17", hour: "9" }),
+      targets: [
+        new targets.LambdaFunction(capture, {
+          event: events.RuleTargetInput.fromObject({ limit: 25 }),
+          retryAttempts: 0,
+        }),
+      ],
+    });
+
     const functionUrl = fn.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
     });
@@ -160,6 +221,28 @@ export class ComponentLibraryStack extends cdk.Stack {
       compress: true,
     };
 
+    // Live component renders (npm run components:extract) are third-party code. This header
+    // keeps them in a sandbox with an opaque origin even when opened outside the iframe.
+    const renderSandbox = new cloudfront.ResponseHeadersPolicy(this, "RenderSandbox", {
+      comment: "Sandbox live component renders",
+      securityHeadersBehavior: {
+        contentSecurityPolicy: {
+          contentSecurityPolicy: "sandbox allow-scripts allow-pointer-lock allow-forms",
+          override: true,
+        },
+        contentTypeOptions: { override: true },
+      },
+      // Renders run in an opaque origin, so their fetch()es and @font-faces of mirrored demo
+      // assets are cross-origin. These are public static files.
+      corsBehavior: {
+        accessControlAllowCredentials: false,
+        accessControlAllowHeaders: ["*"],
+        accessControlAllowMethods: ["GET", "HEAD"],
+        accessControlAllowOrigins: ["*"],
+        originOverride: true,
+      },
+    });
+
     const distribution = new cloudfront.Distribution(this, "Cdn", {
       comment: domains.domain,
       defaultBehavior: {
@@ -179,6 +262,9 @@ export class ComponentLibraryStack extends cdk.Stack {
       },
       additionalBehaviors: {
         "/_next/static/*": staticBehavior,
+        // Screenshots from `npm run previews:capture`, content-hashed so they cache forever.
+        "/previews/*": staticBehavior,
+        "/renders/*": { ...staticBehavior, responseHeadersPolicy: renderSandbox },
         "/favicon.ico": staticBehavior,
         "*.svg": staticBehavior,
       },
@@ -218,7 +304,11 @@ export class ComponentLibraryStack extends cdk.Stack {
     });
     new cdk.CfnOutput(this, "FunctionUrl", { value: functionUrl.url });
     new cdk.CfnOutput(this, "FunctionName", { value: fn.functionName });
-    new cdk.CfnOutput(this, "AssetsBucket", { value: assets.bucketName });
+    new cdk.CfnOutput(this, "CaptureFunctionName", { value: capture.functionName });
+    new cdk.CfnOutput(this, "AssetsBucket", {
+      value: assets.bucketName,
+      description: "Also PREVIEWS_BUCKET for npm run previews:capture.",
+    });
     new cdk.CfnOutput(this, "ClusterArn", { value: cluster.clusterArn });
     new cdk.CfnOutput(this, "SecretArn", {
       value: cluster.secret?.secretArn ?? "",

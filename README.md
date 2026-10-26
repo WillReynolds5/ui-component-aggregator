@@ -27,10 +27,13 @@ npm run typecheck
 
 ## What you get
 
-- Browse with a large search bar, category tree, tag chips, **creator chips with counts**, and kind / framework / pricing / access filters
-- `/creators` index and `/creators/[slug]` pages; item cards link the creator name
-- Item pages with preview, code copy, install command, View source, creator / X post, built-from / used-in
-- Category pages
+- Mobbin-style browse: a persistent sidebar of ~70 UI element types (buttons, dropdown menus, dialogs, page sections, AI UI, effects…) grouped into collapsible sections with live counts, ⌘K search, and a screenshot grid
+- Filter dropdowns for type, price, access, framework, creator, and style tags
+- Quick view: clicking a card opens the item in a modal over the grid (intercepted route); the URL is shareable and a hard load renders the full page
+- Item pages with a large preview, install command, the X post, details, and more from the same category
+- `/creators` index and `/creators/[slug]` pages
+- Light and dark mode (follows the OS until toggled)
+- Preview screenshots of each item's live site: automatic in production (a Lambda invoked on ingest, plus a daily sweep), or `npm run previews:capture` locally
 - `GET /api/search` (keyword now; hybrid keyword + pgvector when embeddings exist). `creator=shadcn,animate-ui` is a multi-select facet
 - `POST /api/ingest` skeleton for the future daily X scraper
 - Seed data from a 62-record X-bookmark scrape in `data/seed/components.json`. Creators are inferred from GitHub owner / known aliases (e.g. **shadcn**), not the X curator who posted a roundup.
@@ -128,6 +131,6 @@ The future X scraper should POST the same scrape-record shape as `data/seed/comp
 
 - Semantic embeddings (provider interface + hybrid SQL path are in; no vectors until a provider is configured)
 - Daily X scraper (ingest route only)
-- Real preview images from the scrape (`image_paths` were local scraper files; cards use a geometric placeholder unless a remote image URL exists)
+- Previews for items without a capturable site (X posts, videos): they keep a typographic placeholder unless the scrape sends a public image URL in `image_paths`
 - Auth
 - AWS resources (deploy from the Mac — [DEPLOY.md](DEPLOY.md); this environment does not deploy)

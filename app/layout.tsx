@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SiteHeader } from "@/components/site-header";
+import { Sidebar } from "@/components/sidebar/sidebar";
+import { THEME_SCRIPT } from "@/components/theme-toggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { appUrl } from "@/lib/catalog/domain";
 import "./globals.css";
@@ -23,17 +26,28 @@ export const metadata: Metadata = {
     template: `%s · ${appName}`,
   },
   description:
-    "A catalog of UI components and blocks scraped from designers — searchable, categorized, and cheap to run.",
+    "Every new UI component, block, and library found on X, in one searchable place.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children, modal }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        <TooltipProvider>{children}</TooltipProvider>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className="min-h-full bg-background text-foreground">
+        <TooltipProvider>
+          <SiteHeader />
+          <div className="flex">
+            <Sidebar />
+            <main className="min-w-0 flex-1">{children}</main>
+          </div>
+          {modal}
+        </TooltipProvider>
       </body>
     </html>
   );

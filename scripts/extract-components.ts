@@ -1,0 +1,345 @@
+/**
+ * Extract every component from the catalog's libraries that publish a shadcn registry,
+ * build each into a live render, verify it in Chromium, and add it as its own item.
+ *
+ *   npm run components:extract                          # all libraries, new components only
+ *   npm run components:extract -- --library pin-ui      # one library (item slug)
+ *   npm run components:extract -- --library arc-ui --name signup-form --force
+ *
+ * Storage follows lib/catalog/capture-run.ts: PREVIEWS_BUCKET → S3, otherwise public/.
+ * Anything that fails to build, throws, or renders blank is skipped (and removed if it was
+ * extracted before), so the grid never shows a dead card.
+ */
+import "dotenv/config";
+import { createHash } from "node:crypto";
+import path from "node:path";
+import { parseArgs } from "node:util";
+import { chromium, type Browser } from "playwright-core";
+import { usesDataApi } from "@/db";
+import { storeAsset } from "@/lib/catalog/capture-run";
+import { findComponentPage } from "@/lib/catalog/component-pages";
+import {
+  extractedUrls,
+  findLibraries,
+  loadLibraryRegistry,
+  removeComponent,
+  setComponentPage,
+  upsertComponent,
+  type LibraryRecord,
+  type LibraryRegistry,
+} from "@/lib/catalog/extract";
+import {
+  categorizeEntry,
+  fetchJson,
+  isExtractable,
+  RateLimitedError,
+  type Registry,
+  type RegistryEntry,
+} from "@/lib/catalog/registry";
+import {
+  buildRender,
+  mainFile,
+  resolveComponent,
+  type BuiltRender,
+  type MirrorAsset,
+  type RenderLayout,
+  type ResolvedComponent,
+} from "@/lib/catalog/render-build";
+import { exportedComponents, findUsageExample } from "@/lib/catalog/usage-examples";
+import { looksEmpty, looksUnfed } from "@/lib/catalog/render-visual";
+
+const { values: args } = parseArgs({
+  options: {
+    library: { type: "string" },
+    name: { type: "string" },
+    limit: { type: "string" },
+    force: { type: "boolean", default: false },
+    // Only refresh each extracted component's "Visit site" link from the library's sitemap.
+    "links-only": { type: "boolean", default: false },
+    concurrency: { type: "string", default: "2" },
+  },
+});
+
+/**
+ * Verify (and take the poster) at the size the card actually shows: components at about card
+ * width (2× for a crisp poster), blocks on the same 1280px canvas the card scales down.
+ */
+const VIEWPORTS: Record<RenderLayout, { width: number; height: number; scale: number }> = {
+  component: { width: 480, height: 360, scale: 2 },
+  block: { width: 1280, height: 960, scale: 1 },
+};
+/** The origin renders are verified under; routed in-process, never fetched. */
+const VERIFY_URL = "https://render.verify/component.html";
+
+type Outcome = "added" | "updated" | "blank" | "error" | "build-failed" | "paid" | "transient";
+/**
+ * `deterministic`: the component itself rendered nothing or threw; rebuilding won't change it,
+ * so an existing item is removed. Otherwise (timeouts, CDN or browser trouble) existing items
+ * are kept and the run reports it.
+ */
+type Verified = { ok: boolean; reason?: string; poster?: Buffer; deterministic?: boolean };
+
+async function verify(browser: Browser, html: string, layout: RenderLayout): Promise<Verified> {
+  const { width, height, scale } = VIEWPORTS[layout];
+  const context = await browser.newContext({
+    viewport: { width, height },
+    deviceScaleFactor: scale,
+    colorScheme: "light",
+  });
+  const page = await context.newPage();
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.route(VERIFY_URL, (route) =>
+    route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: html }),
+  );
+  try {
+    await page.goto(VERIFY_URL, { waitUntil: "load", timeout: 30_000 });
+    await page
+      .waitForFunction(() => (window as { __renderStatus?: unknown }).__renderStatus, null, { timeout: 15_000 })
+      .catch(() => {});
+    const status = await page.evaluate(
+      () => (window as { __renderStatus?: { ok: boolean; blank?: boolean; error?: string } }).__renderStatus,
+    );
+    if (!status) return { ok: false, reason: errors[0] ?? "never reported a render" };
+    if (!status.ok) {
+      return { ok: false, reason: status.blank ? "blank" : (status.error ?? errors[0] ?? "error"), deterministic: true };
+    }
+    // Let entrance animations land before judging and taking the poster.
+    await page.waitForTimeout(800);
+    const text = await page.evaluate(() => document.body.innerText);
+    if (looksUnfed(text)) return { ok: false, reason: "unfed (shows NaN/undefined)", deterministic: true };
+    // The page's real background, resolved by the browser (themes use oklch, var(), etc.).
+    const background = await page.evaluate(() => {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext("2d")!;
+      context.fillStyle = getComputedStyle(document.body).backgroundColor || "#fff";
+      context.fillRect(0, 0, 1, 1);
+      const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+      return [r, g, b] as [number, number, number];
+    });
+    if (await looksEmpty(await page.screenshot({ type: "png" }), background)) {
+      return { ok: false, reason: "blank", deterministic: true };
+    }
+    return { ok: true, poster: await page.screenshot({ type: "jpeg", quality: 80 }) };
+  } catch (error) {
+    return { ok: false, reason: error instanceof Error ? error.message.split("\n")[0] : String(error) };
+  } finally {
+    await context.close();
+  }
+}
+
+/**
+ * A published usage example for the component, if any. shadcn/ui ships one per primitive
+ * ("dropdown-menu-demo"); a bare Dialog or Tooltip renders nothing without it.
+ */
+async function findDemo(registry: Registry, name: string): Promise<string | null> {
+  for (const candidate of [`${name}-demo`, `demo-${name}`]) {
+    try {
+      const demo = await fetchJson<RegistryEntry>(registry.itemUrl(candidate));
+      if (demo.files?.some((file) => file.content)) return candidate;
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+function message(error: unknown) {
+  const esbuildErrors = (error as { errors?: Array<{ text: string }> }).errors;
+  if (esbuildErrors?.length) return esbuildErrors.map((entry) => entry.text).join("; ").slice(0, 240);
+  return error instanceof Error ? error.message.split("\n")[0] : String(error);
+}
+
+async function extractOne(
+  browser: Browser,
+  library: LibraryRecord,
+  source: LibraryRegistry,
+  indexEntry: RegistryEntry,
+): Promise<{ outcome: Outcome; detail?: string }> {
+  const itemUrl = source.registry.itemUrl(indexEntry.name);
+  let entry: RegistryEntry;
+  try {
+    entry = await fetchJson<RegistryEntry>(itemUrl);
+  } catch (error) {
+    if (error instanceof RateLimitedError) throw error;
+    // Licensed registries (most of reui) answer 401 for paid items. Those stay out.
+    if (/HTTP (401|403)/.test(message(error))) return { outcome: "paid" };
+    return { outcome: "build-failed", detail: message(error) };
+  }
+
+  const categorySlug = categorizeEntry({ ...indexEntry, ...entry });
+  const layout: RenderLayout = entry.type === "registry:block" ? "block" : "component";
+  const pageUrl = findComponentPage(source.pages, indexEntry.name);
+  const mirrorAsset: MirrorAsset = async (assetPath, body, contentType) => {
+    // Content-hashed under the library's render folder; served with the renders' headers.
+    const hash = createHash("sha256").update(body).digest("hex").slice(0, 10);
+    const key = `renders/${library.slug}/assets/${hash}-${path.posix.basename(assetPath)}`;
+    await storeAsset(key, body, contentType);
+    return `/${key}`;
+  };
+
+  // What to render, best first. A bare component has no props or content (an empty Alert, a
+  // toggle with no state); the library's own showcase is a small composition, so prefer it:
+  // a published demo item, then the usage example from the component's docs markdown.
+  const demo = await findDemo(source.registry, indexEntry.name);
+  const candidates: Array<{ label: string; build: () => Promise<{ built: BuiltRender; resolved: ResolvedComponent }> }> = [];
+  const build = async (name: string, exampleModule?: string) => {
+    const resolved = await resolveComponent(source.registry, name, []);
+    const built = await buildRender(resolved, {
+      categorySlug,
+      globalStyles: source.globalStyles,
+      layout,
+      mirrorAsset,
+      exampleModule,
+    });
+    return { built, resolved };
+  };
+  if (demo) candidates.push({ label: `demo: ${demo}`, build: () => build(demo) });
+  const example = await findUsageExample(pageUrl, exportedComponents(mainFile(entry)?.content ?? ""));
+  if (example) candidates.push({ label: "docs usage example", build: () => build(indexEntry.name, example) });
+  candidates.push({ label: "bare component", build: () => build(indexEntry.name) });
+
+  let chosen: { built: BuiltRender; resolved: ResolvedComponent; verified: Verified; label: string } | null = null;
+  let lastFailure: { outcome: Outcome; detail?: string } = { outcome: "build-failed" };
+  for (const candidate of candidates) {
+    let result;
+    try {
+      result = await candidate.build();
+    } catch (error) {
+      if (error instanceof RateLimitedError) throw error;
+      lastFailure = { outcome: "build-failed", detail: `${candidate.label}: ${message(error)}` };
+      continue;
+    }
+    const verified = await verify(browser, result.built.html, layout);
+    if (verified.ok && verified.poster) {
+      chosen = { ...result, verified, label: candidate.label };
+      break;
+    }
+    // Timeouts and CDN errors say nothing about the candidate; keep what's there and stop.
+    if (!verified.deterministic) return { outcome: "transient", detail: `kept existing: ${verified.reason}` };
+    lastFailure = { outcome: verified.reason === "blank" ? "blank" : "error", detail: `${candidate.label}: ${verified.reason}` };
+  }
+  if (!chosen) {
+    if (lastFailure.outcome !== "build-failed") await removeComponent(itemUrl);
+    return lastFailure;
+  }
+  const { built, resolved, verified } = chosen;
+
+  const posterHash = createHash("sha256").update(verified.poster!).digest("hex").slice(0, 10);
+  const renderKey = `renders/${library.slug}/${built.fileName}`;
+  const posterKey = `previews/components/${library.slug}/${indexEntry.name}-${posterHash}.jpg`;
+  await storeAsset(renderKey, built.html, "text/html; charset=utf-8");
+  await storeAsset(posterKey, verified.poster!, "image/jpeg");
+  const { created, slug } = await upsertComponent({
+    library,
+    entry,
+    itemUrl,
+    categorySlug,
+    // The component's own source, even when the card renders its demo.
+    code: mainFile(entry)?.content ?? built.code,
+    dependencies: [...resolved.npmDeps.keys()],
+    renderUrl: `/${renderKey}`,
+    posterUrl: `/${posterKey}`,
+    pageUrl: pageUrl ?? library.homepage,
+  });
+  return { outcome: created ? "added" : "updated", detail: `${slug} → ${categorySlug} (${chosen.label})` };
+}
+
+async function main() {
+  if (!process.env.DATABASE_URL && !usesDataApi()) {
+    throw new Error("DATABASE_URL or AURORA_* Data API env is required");
+  }
+  const split = (value?: string) => value?.split(",").map((part) => part.trim()).filter(Boolean);
+  const libraries = await findLibraries(split(args.library));
+  const names = split(args.name);
+  const limit = args.limit ? Number(args.limit) : undefined;
+  const browser = await chromium.launch();
+  const totals: Record<Outcome, number> = {
+  added: 0,
+  updated: 0,
+  blank: 0,
+  error: 0,
+  "build-failed": 0,
+  paid: 0,
+  transient: 0,
+};
+
+  try {
+    for (const library of libraries) {
+      const source = await loadLibraryRegistry(library);
+      if (!source) {
+        console.log(`· ${library.name}: no registry`);
+        continue;
+      }
+      if (args["links-only"]) {
+        let found = 0;
+        let updated = 0;
+        // Only components that were actually extracted (reui alone lists ~1,900 paid blocks).
+        const extracted = await extractedUrls([library.id]);
+        const entries = source.registry.entries.filter(
+          (entry) => isExtractable(entry) && extracted.has(source.registry.itemUrl(entry.name)),
+        );
+        for (const entry of entries) {
+          const page = findComponentPage(source.pages, entry.name);
+          if (page) found += 1;
+          if (await setComponentPage(source.registry.itemUrl(entry.name), page ?? library.homepage)) updated += 1;
+        }
+        console.log(`▸ ${library.name}: ${updated} component link(s) updated, ${found} matched a page in ${source.pages.length} sitemap URLs`);
+        continue;
+      }
+      const done = args.force ? new Set<string>() : await extractedUrls([library.id]);
+      const todo = source.registry.entries
+        .filter(isExtractable)
+        .filter((entry) => !names?.length || names.includes(entry.name))
+        .filter((entry) => !done.has(source.registry.itemUrl(entry.name)))
+        .slice(0, limit);
+      console.log(
+        `▸ ${library.name}: ${todo.length} to extract (${done.size} already done, ${source.globalStyles.length} global style file(s))`,
+      );
+
+      const queue = [...todo];
+      const counts: Partial<Record<Outcome, number>> = {};
+      // After this many paid answers in a row for one item type, assume the rest of that type
+      // is paid too and stop requesting it (reui has ~1,900 licensed blocks).
+      const PAID_STREAK = 5;
+      const paidStreak = new Map<string, number>();
+      let rateLimited = false;
+      const worker = async () => {
+        for (let entry = queue.shift(); entry && !rateLimited; entry = queue.shift()) {
+          const type = entry.type ?? "";
+          let result: { outcome: Outcome; detail?: string };
+          if ((paidStreak.get(type) ?? 0) >= PAID_STREAK) {
+            result = { outcome: "paid", detail: "skipped: rest of this type is licensed" };
+          } else {
+            try {
+              result = await extractOne(browser, library, source, entry);
+            } catch (error) {
+              if (!(error instanceof RateLimitedError)) throw error;
+              rateLimited = true;
+              console.log(`  ! ${library.name} is rate-limiting us; stopping this library. Rerun later.`);
+              break;
+            }
+            paidStreak.set(type, result.outcome === "paid" ? (paidStreak.get(type) ?? 0) + 1 : 0);
+          }
+          const { outcome, detail } = result;
+          counts[outcome] = (counts[outcome] ?? 0) + 1;
+          totals[outcome] += 1;
+          if (outcome === "paid" && detail) continue;
+          const mark = outcome === "added" || outcome === "updated" ? "✓" : "✗";
+          console.log(`  ${mark} ${entry.name}  ${outcome}${detail ? `  ${detail}` : ""}`);
+        }
+      };
+      await Promise.all(Array.from({ length: Math.max(1, Number(args.concurrency)) }, worker));
+      console.log(`  = ${JSON.stringify(counts)}`);
+    }
+  } finally {
+    await browser.close();
+  }
+  console.log("Totals:", JSON.stringify(totals));
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

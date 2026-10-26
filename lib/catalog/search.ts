@@ -7,12 +7,17 @@ export type SearchFilters = {
   pricing?: "free" | "paid" | "freemium";
   access?: "full_code" | "install_only" | "link_only";
   categorySlug?: string;
+  /** Components extracted from this library item (its slug). */
+  library?: string;
   tags?: string[];
   creators?: string[];
   mode?: SearchMode;
   limit?: number;
   offset?: number;
 };
+
+export const DEFAULT_LIMIT = 48;
+export const MAX_LIMIT = 192;
 
 export const KEYWORD_WEIGHT = 0.45;
 export const VECTOR_WEIGHT = 0.55;
@@ -36,7 +41,7 @@ export function parseSearchParams(
   const tags = splitList(first("tag") ?? first("tags"));
   const creators = splitList(first("creator") ?? first("creators"));
 
-  const limit = Number(first("limit") ?? 48);
+  const limit = Number(first("limit") ?? DEFAULT_LIMIT);
   const offset = Number(first("offset") ?? 0);
   const mode = first("mode");
 
@@ -47,10 +52,11 @@ export function parseSearchParams(
     pricing: asEnum(first("pricing"), ["free", "paid", "freemium"]),
     access: asEnum(first("access"), ["full_code", "install_only", "link_only"]),
     categorySlug: first("category")?.trim() || undefined,
+    library: first("library")?.trim() || undefined,
     tags: tags?.length ? tags : undefined,
     creators: creators?.length ? creators : undefined,
     mode: asEnum(mode, ["keyword", "semantic", "hybrid"]) ?? "keyword",
-    limit: Number.isFinite(limit) ? Math.min(Math.max(limit, 1), 100) : 48,
+    limit: Number.isFinite(limit) ? Math.min(Math.max(limit, 1), MAX_LIMIT) : DEFAULT_LIMIT,
     offset: Number.isFinite(offset) ? Math.max(offset, 0) : 0,
   };
 }

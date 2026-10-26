@@ -65,8 +65,8 @@ describe("mapScrapeRecord", () => {
     expect(mapped.creatorHandle).toBe("Rachit315");
     expect(mapped.creatorSlug).toBe("rachit315");
     expect(mapped.sourceRepoUrl).toBe("https://github.com/Rachit315/Pin-UI");
-    expect(mapped.categorySlug).toBe("components");
-    expect(mapped.code).toContain("PinUI");
+    expect(mapped.categorySlug).toBe("libraries");
+    expect(mapped.code).toBeNull();
   });
 
   it("maps landing pages to blocks / hero", () => {
@@ -86,5 +86,25 @@ describe("repoUrlFromCodePath", () => {
     expect(repoUrlFromCodePath("code/repos/keenthemes__reui")).toBe(
       "https://github.com/keenthemes/reui",
     );
+  });
+});
+
+describe("shadcn install command", () => {
+  const base = {
+    component_name: "Split Button",
+    type: "component",
+    category: "Buttons",
+    extraction_status: "full code (shadcn registry)",
+    demo_url: "https://uiarc.dev/components/split-button",
+  };
+
+  it("uses a registry item URL from links, never the docs page", () => {
+    const mapped = mapScrapeRecord({ ...base, links: ["https://uiarc.dev/r/split-button.json"] });
+    expect(mapped.installCommand).toBe("npx shadcn@latest add https://uiarc.dev/r/split-button.json");
+    expect(mapped.sourceUrl).toBe("https://uiarc.dev/components/split-button");
+  });
+
+  it("leaves the command out when no registry item URL is known", () => {
+    expect(mapScrapeRecord(base).installCommand).toBeNull();
   });
 });
